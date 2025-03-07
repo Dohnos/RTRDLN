@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+Disallow: /seo.html
+
+Sitemap: https://www.retrodilna.cz/sitemap.xml
+
+# Crawl-delay: 10

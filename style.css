@@ -1,0 +1,689 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Exo 2', sans-serif;
+    line-height: 1.6;
+    background: #ffffff;
+    color: #000000;
+}
+
+header {
+    background: #000000;
+    color: white;
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+    margin-top: 60px;
+}
+
+@media (min-width: 640px) {
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .products-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.product-card {
+    background: white;
+    border: 1px solid #000;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: #333;
+}
+
+/* Update image styles to preserve natural portrait orientation */
+.product-image {
+    width: 100%;
+    height: auto;
+    max-height: 400px; /* adjust as needed */
+    object-fit: contain;
+    transition: transform 0.3s;
+}
+
+/* Optionally, if using a container for the image, ensure no fixed height */
+.product-image-container {
+    width: 100%;
+    display: block;
+    /* Remove fixed height if present */
+}
+
+/* Add lazy loading styles */
+.lazy {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.lazy.loaded {
+    opacity: 1;
+}
+
+/* Add loading placeholder style */
+.product-image-container {
+    background: #f3f4f6;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image-container::before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+}
+
+.product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: white;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+.product-info {
+    padding: 1rem;
+}
+
+.product-title {
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 0.5rem;
+}
+
+.product-price {
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 0.5rem;
+}
+
+.product-location {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.product-location::before {
+    content: "📍";
+    margin-right: 0.25rem;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Add grayscale filter to all icons */
+.fas, .fab {
+    filter: grayscale(100%);
+}
+
+/* Update section backgrounds to be black and white */
+section {
+    background: #ffffff !important;
+    color: #000000;
+}
+
+section:nth-child(even) {
+    background: #f5f5f5 !important;
+}
+
+.bg-gradient-to-r {
+    background: #000 !important;
+}
+
+.bg-gradient-to-b {
+    background: #000 !important;
+}
+
+footer {
+    background: #000 !important;
+}
+
+.scroll-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #000;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 99;
+    opacity: 0;
+    transform: translateY(100px);
+}
+
+.scroll-top-btn.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-top-btn:hover {
+    background: #333;
+    transform: translateY(-3px);
+}
+
+.wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.1);
+}
+
+.wishlist-btn i {
+    font-size: 18px;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.wishlist-btn.active i {
+    color: #ff4b4b;
+}
+
+#wishlist-items {
+    transition: all 0.3s ease;
+}
+
+#wishlist-items > div {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#wishlist-items > div:hover {
+    transform: translateX(5px);
+}
+
+#wishlist-items img {
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+.wishlist-summary {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.wishlist-summary p {
+    margin: 0.5rem 0;
+}
+
+#wishlist-count, #wishlist-total {
+    font-weight: bold;
+    color: #000;
+}
+
+#wishlist {
+    transition: opacity 0.3s ease, height 0.3s ease;
+}
+
+#wishlist.hidden {
+    display: none;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #000;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    z-index: 2000;
+    transform: translateX(150%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+#companyFields {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    opacity: 1;
+    max-height: 500px;
+}
+
+#companyFields.hidden {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+}
+
+#inquiryModal {
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease;
+}
+
+#inquiryModal form input,
+#inquiryModal form textarea {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem;
+    width: 100%;
+}
+
+#inquiryModal form input:focus,
+#inquiryModal form textarea:focus {
+    outline: none;
+    border-color: #000;
+    ring: 1px solid #000;
+}
+
+#inquiryModal .bg-white {
+    margin: 1rem;
+}
+
+#companyFields {
+    transition: opacity 0.3s ease;
+}
+
+#toggleCompany i {
+    transition: transform 0.3s ease;
+}
+
+#productList {
+    scrollbar-width: thin;
+    scrollbar-color: #000000 #f3f4f6;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#productList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#productList::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+#productList::-webkit-scrollbar-thumb {
+    background-color: #000000;
+    border-radius: 3px;
+}
+
+#productSelection {
+    transition: all 0.3s ease;
+}
+
+#selectedProducts {
+    transition: all 0.3s ease;
+}
+
+.product-select-card {
+    position: relative;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.product-select-card:hover {
+    border-color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.product-select-card.selected {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+}
+
+.check-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+}
+
+.check-icon i {
+    color: #10b981;
+    font-size: 20px;
+}
+
+.check-icon.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.product-select-card.selected .check-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.product-select-image {
+    background: white;
+    padding: 0.5rem;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.5rem;
+}
+
+.contact-buttons a {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.contact-buttons a:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.contact-buttons i {
+    font-size: 1rem;
+}
+
+.category-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #000;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.category-btn:hover {
+    background: #000;
+    color: white;
+}
+
+.category-btn.active {
+    background: #000;
+    color: white;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #000;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: white;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-btn:hover {
+    background: #000;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.filter-btn:active {
+    background: #000;
+    color: white;
+    transform: translateY(1px);
+}
+
+.filter-btn.active {
+    border-color: #10b981; /* zelená barva */
+    border-width: 2px;
+    background: #000;
+    color: white;
+}
+
+/* Zajistí, že aktivní tlačítko zůstane zvýrazněné i po kliknutí */
+.filter-btn.active:active {
+    transform: none;
+    background: #000;
+    color: white;
+}
+
+.filter-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #ccc;
+}
+
+.filter-btn .count {
+    background: #000;
+    color: white;
+    padding: 0.1rem 0.4rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.filter-btn.disabled .count {
+    background: #ccc;
+}
+
+#designerSearch {
+    border: 2px solid #000;
+}
+
+#designerSearch:focus {
+    outline: none;
+    border-color: #333;
+    ring: 2px solid #000;
+}
+
+#designersList {
+    scrollbar-width: thin;
+    scrollbar-color: #000 #f3f4f6;
+}
+
+#designersList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#designersList::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+#designersList::-webkit-scrollbar-thumb {
+    background: #000;
+    border-radius: 3px;
+}
+
+#filtersContainer h3 {
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+    #filtersContainer {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+    
+    #filtersContainer .flex.flex-wrap {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    
+    .filter-btn {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .hero-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Hero section specific styles */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.hero-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-25%);
+    }
+}
+
+.group:hover .group-hover\:animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+/* Contact Section Styles */
+#kontakt a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#kontakt .social-links a {
+    transition: transform 0.3s ease;
+}
+
+#kontakt .social-links a:hover {
+    transform: translateY(-3px);
+}
+
+/* Loading overlay styles */
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.progress-bar {
+    width: 80%;
+    max-width: 300px;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: #000;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+/* Enhanced notification styles */
+.notification {
+    background: #000;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    transform: translateX(150%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification.success {
+    background: #10b981;
+}
+
+.notification.error {
+    background: #ef4444;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
