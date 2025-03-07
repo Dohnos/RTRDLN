@@ -7,7 +7,13 @@
       <priority>1.0</priority>
    </url>
    <url>
-      <loc>https://www.retrodilna.cz/about.html</loc>
+      <loc>https://www.retrodilna.cz/o-nas</loc>
+      <lastmod>2024-01-19</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.8</priority>
+   </url>
+      <url>
+      <loc>https://www.retrodilna.cz/prodavame</loc>
       <lastmod>2024-01-19</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.8</priority>
