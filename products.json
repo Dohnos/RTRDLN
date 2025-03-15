@@ -1,6 +1,116 @@
 {
     "products": [
-      {
+{
+        "id": "218995328",
+        "title": "SKLENĚNÝ NÁDHERNÝ LUSTR | KAMENICKÝ ŠENOV",
+        "price": "Dohodou",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/kb9Yg2GWeBteKqZhCnBDl1/a876.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218995328-skleneny-nadherny-lustr-kamenicky-senov",
+        "saved_offer": false,
+        "category": "Osvětlení",
+        "designer": "KAMENICKÝ ŠENOV"
+    },
+    {
+        "id": "218995172",
+        "title": "BRUSEL | RETRO VITRÁŽ - Žena s knihou",
+        "price": "3 500 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/kb9Yg2GWeBykzcanCnBH5S/77e1.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218995172-brusel-retro-vitraz-zena-s-knihou",
+        "saved_offer": false,
+        "category": "Doplňky",
+        "designer": "BRUSEL"
+    },
+    {
+        "id": "218995085",
+        "title": "RETRO LUSTR | OSVĚTLOVACÍ SKLO V. MEZIŘÍČÍ",
+        "price": "2 500 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/kb9Yg2GWeC36sVX6CnAzHr/06c1.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218995085-retro-lustr-osvetlovaci-sklo-v-mezirici",
+        "saved_offer": false,
+        "category": "Osvětlení",
+        "designer": "OSVĚTLOVACÍ SKLO N.P."
+    },
+    {
+        "id": "218994986",
+        "title": "BRUSEL LUSTR | NAPAKO",
+        "price": "3 000 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/kb9Yg2GWeBMSGtWZCnAuVG/07ee.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218994986-brusel-lustr-napako",
+        "saved_offer": false,
+        "category": "Osvětlení",
+        "designer": "NAPAKO"
+    },
+    {
+        "id": "218994977",
+        "title": "STOJAN NA KVĚTINY | BRUSEL",
+        "price": "3 000 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/kb9Yg2GWeBteKqZYCnAtS7/e32f.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218994977-stojan-na-kvetiny-brusel",
+        "saved_offer": false,
+        "category": "Doplňky",
+        "designer": "BRUSEL"
+    },
+    {
+        "id": "218994887",
+        "title": "STOJAN NA KVĚTINY | BRUSEL",
+        "price": "3 000 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/nPw2pRkMOeC4jvZXKCnAo9y/3480.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218994887-stojan-na-kvetiny-brusel",
+        "saved_offer": false,
+        "category": "Doplňky",
+        "designer": "BRUSEL"
+    },
+    {
+        "id": "218994737",
+        "title": "VĚŠÁK | THONET | DOBOVÝ",
+        "price": "5 000 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/kb9Yg2GWeBteKqZcCnAhqv/5d55.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218994737-vesak-thonet-dobovy",
+        "saved_offer": false,
+        "category": "Doplňky",
+        "designer": "THONET"
+    },
+    {
+        "id": "218994635",
+        "title": "POLOKŘESLO | THONET| ZNAČENO",
+        "price": "2 500 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/nPw2pRkMOeDxAUcbxCnAeVB/acf8.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218994635-polokreslo-thonet-znaceno",
+        "saved_offer": false,
+        "category": "Křesla / gauče",
+        "designer": "THONET"
+    },
+    {
+        "id": "218994380",
+        "title": "KOMODA U-453 | JIROUTEK | INTERIÉR PRAHA",
+        "price": "8 999 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/nPw2pRkMOeCmZ4qaQCnATBA/23cc.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218994380-komoda-u-453-jiroutek-interier-praha",
+        "saved_offer": false,
+        "category": "Komody / skříně",
+        "designer": "JIŘÍ JIROUTEK"
+    },
+    {
+        "id": "218979221",
+        "title": "ŽIDLE | TON | 4 KS | CENA ZA 1 KUS",
+        "price": "1 500 Kč",
+        "location": "Olomouc",
+        "image": "//d46-a.sdn.cz/d_46/c_img_oX_B/nPw2pRkMOeBQpVfVcCm0zbn/5bba.jpeg?fl=exf|res,280,280,3|jpg,80,,1",
+        "url": "https://www.sbazar.cz/inzerat/218979221-zidle-ton-4-ks-cena-za-1-kus",
+        "saved_offer": false,
+        "category": "Židle",
+        "designer": "TON"
+    },
+    {
         "id": "218654030",
         "title": "ŽIDLE IRONICA | TON | 3 KS | CENA ZA 1 KUS",
         "price": "2 500 Kč",
