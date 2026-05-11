@@ -7,12 +7,12 @@
 // Nastavte Security Rules tak, aby omezovaly write operace jen na autentizované uživatele.
 // ============================================================
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDsyK56HFW_q-dg35tTv4-sXFJylNLAzZc",
+  authDomain: "rtrdln.firebaseapp.com",
+  projectId: "rtrdln",
+  storageBucket: "rtrdln.firebasestorage.app",
+  messagingSenderId: "672984489873",
+  appId: "1:672984489873:web:177cfd93bf40a1e5210430"
 };
 
 firebase.initializeApp(firebaseConfig);
