@@ -3,26 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Přesměrovávám… | Retrodílna.cz</title>
-    <meta name="robots" content="noindex">
-    <script>
-        // GitHub Pages SPA routing: redirect /produkt/slug/id → product.html?id=id
-        (function () {
-            var path = window.location.pathname;
-            // Detect base (repo subfolder on GitHub Pages, e.g. /RTRDLN)
-            var base = path.match(/^(\/[^/]+)?\/produkt\//) ? RegExp.$1 || '' : '';
-            var parts = path.replace(base, '').split('/').filter(Boolean);
 
-            if (parts[0] === 'produkt' && parts.length >= 2) {
-                var id = parts[parts.length - 1];
-                window.location.replace(base + '/product.html?id=' + encodeURIComponent(id));
-            } else {
-                window.location.replace(base + '/index.html');
-            }
-        })();
+    <!-- SEO – základní hodnoty, JS je doplní produktovými daty -->
+    <title id="pageTitle">Produkt | Retrodílna.cz</title>
+    <meta name="robots" content="noindex">
+    <link id="canonicalLink" rel="canonical" href="https://www.retrodilna.cz/">
+
+    <!-- Open Graph – výchozí hodnoty přepsány inline JS z URL a pak z products.json -->
+    <meta property="og:type" content="product">
+    <meta property="og:site_name" content="Retrodílna.cz">
+    <meta id="ogTitle"   property="og:title"       content="Produkt | Retrodílna.cz">
+    <meta id="ogDesc"    property="og:description"  content="Vintage nábytek a retro design | Retrodílna.cz">
+    <meta id="ogImage"   property="og:image"        content="https://i.postimg.cc/rwQ95kyJ/4.png">
+    <meta id="ogUrl"     property="og:url"          content="">
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta id="twTitle" name="twitter:title"       content="Produkt | Retrodílna.cz">
+    <meta id="twDesc"  name="twitter:description" content="Vintage nábytek a retro design | Retrodílna.cz">
+    <meta id="twImage" name="twitter:image"       content="https://i.postimg.cc/rwQ95kyJ/4.png">
+
+    <script>
+    (function () {
+        /* ── 1. Parse URL ──────────────────────────────────────────────────── */
+        var path  = window.location.pathname;
+        // Detect optional repo-subfolder base (GitHub Pages: /RTRDLN)
+        var base  = path.match(/^(\/[^/]+)?\/produkt\//) ? (RegExp.$1 || '') : '';
+        var parts = path.replace(base, '').split('/').filter(Boolean);
+
+        if (parts[0] !== 'produkt' || parts.length < 2) {
+            // Not a product URL – just redirect home
+            window.location.replace(base + '/index.html');
+            return;
+        }
+
+        var id   = parts[parts.length - 1];
+        var slug = parts.length > 2 ? parts[1] : '';
+
+        /* ── 2. Set OG title from slug right away (no fetch needed) ───────── */
+        function unslugify(s) {
+            return s.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        }
+        var titleFromSlug = slug ? unslugify(slug) : 'Produkt';
+        var siteTitle     = titleFromSlug + ' | Retrodílna.cz';
+        var productUrl    = window.location.origin + base + '/produkt/' + slug + '/' + id;
+
+        document.getElementById('pageTitle').textContent   = siteTitle;
+        document.getElementById('ogTitle').setAttribute('content', siteTitle);
+        document.getElementById('ogUrl').setAttribute('content', productUrl);
+        document.getElementById('canonicalLink').setAttribute('href', productUrl);
+        document.getElementById('twTitle').setAttribute('content', siteTitle);
+
+        /* ── 3. Meta-refresh redirect for real browsers (crawlers ignore it) */
+        var meta = document.createElement('meta');
+        meta.httpEquiv = 'refresh';
+        meta.content   = '0;url=' + base + '/product.html?id=' + encodeURIComponent(id);
+        document.head.appendChild(meta);
+
+        /* ── 4. Async fetch of product data for richer OG tags ─────────────
+               Social crawlers that execute JS (facebookexternalhit, Googlebot…)
+               will wait for this and pick up the updated meta tags.           */
+        function setMeta(id, val) {
+            var el = document.getElementById(id);
+            if (el) el.setAttribute('content', val);
+        }
+
+        fetch(base + '/products.json')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var products = data.products || [];
+                var p = products.find(function (x) { return x.id === id; });
+                if (!p) return;
+
+                var img  = (Array.isArray(p.images) && p.images.length) ? p.images[0] : (p.image || '');
+                // Ensure absolute URL (some images start with //)
+                if (img && img.startsWith('//')) img = 'https:' + img;
+
+                var title = (p.title || titleFromSlug) + ' | Retrodílna.cz';
+                var priceText = p.price ? ' – ' + p.price : '';
+                var desc  = p.description
+                    ? p.description.substring(0, 155)
+                    : (p.title || titleFromSlug) + priceText + ' – Vintage nábytek, Retrodílna.cz';
+
+                document.getElementById('pageTitle').textContent = title;
+                setMeta('ogTitle',  title);
+                setMeta('ogDesc',   desc);
+                setMeta('ogUrl',    productUrl);
+                setMeta('twTitle',  title);
+                setMeta('twDesc',   desc);
+                if (img) {
+                    setMeta('ogImage', img);
+                    setMeta('twImage', img);
+                }
+
+                // Update body preview
+                var nameEl  = document.getElementById('productName');
+                var priceEl = document.getElementById('productPrice');
+                var imgEl   = document.getElementById('productImg');
+                if (nameEl)  nameEl.textContent  = p.title || titleFromSlug;
+                if (priceEl) priceEl.textContent  = p.price || '';
+                if (imgEl && img) { imgEl.src = img; imgEl.style.display = 'block'; }
+            })
+            .catch(function () { /* silently ignore – defaults are already set */ });
+    })();
     </script>
 </head>
-<body>
-    <p>Přesměrovávám…</p>
+<body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#fafafa;">
+    <div style="text-align:center;padding:2rem;">
+        <img id="productImg" src="" alt="" style="display:none;max-width:300px;border-radius:12px;margin-bottom:1rem;">
+        <p id="productName"  style="font-size:1.25rem;font-weight:700;margin:0 0 .5rem;"></p>
+        <p id="productPrice" style="font-size:1rem;color:#555;margin:0 0 1.5rem;"></p>
+        <p style="color:#888;font-size:.9rem;">Přesměrovávám na stránku produktu…</p>
+    </div>
 </body>
 </html>
