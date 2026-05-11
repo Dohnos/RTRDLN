@@ -511,7 +511,7 @@
             // Update browser URL to pretty format
             try {
                 history.replaceState(null, '', prettyUrl);
-            } catch (e) { /* ignore if same-origin restriction */ }
+            } catch (e) { console.warn('history.replaceState failed:', e); }
 
             document.getElementById('pageTitle').textContent = seoTitle;
             document.getElementById('metaDesc').setAttribute('content', seoDesc);
