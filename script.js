@@ -352,8 +352,8 @@ function toggleWishlist(productId) {
         showNotification('Odebráno z wishlistu');
     }
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    // Update button states
-    document.querySelectorAll(`[data-product-id="${productId}"]`).forEach(btn => {
+    // Update wishlist button states only (not other buttons sharing data-product-id)
+    document.querySelectorAll(`.wishlist-btn[data-product-id="${productId}"]`).forEach(btn => {
         btn.classList.toggle('active', adding);
         const icon = btn.querySelector('i');
         if (icon) {
@@ -448,10 +448,10 @@ async function displayWishlistItems() {
                 <p class="text-gray-600 text-sm mt-0.5">${escapeHtml(p.price || 'Dohodou')}</p>
             </div>
             <div class="flex gap-2 shrink-0">
-                <button data-action="wishlist-inquiry" data-product-id="${escapeHtml(p.id)}"
+                <a href="product.html?id=${escapeHtml(p.id)}"
                         class="px-3 py-1.5 bg-black text-white rounded-full text-xs font-bold hover:bg-gray-800 transition-colors flex items-center gap-1.5">
-                    <i class="fas fa-heart text-red-400"></i> Mám zájem
-                </button>
+                    <i class="fas fa-eye"></i> Detail
+                </a>
                 <button data-action="wishlist-remove" data-product-id="${escapeHtml(p.id)}"
                         class="px-3 py-1.5 border-2 border-red-200 text-red-500 rounded-full text-xs font-bold hover:bg-red-50 transition-colors">
                     <i class="fas fa-times"></i>
@@ -595,12 +595,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!productId) return;
             if (btn.dataset.action === 'wishlist-remove') {
                 toggleWishlist(productId);
-            } else if (btn.dataset.action === 'wishlist-inquiry') {
-                const product = allProducts.find(p => p.id === productId);
-                if (product) {
-                    closeWishlistModal();
-                    openInquiryModal(product);
-                }
             }
         });
     }
