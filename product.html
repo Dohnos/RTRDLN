@@ -677,7 +677,7 @@
             document.getElementById('relatedGrid').innerHTML = related.map(r => {
                 const img = Array.isArray(r.images) && r.images.length ? r.images[0] : (r.image || '');
                 return `
-                    <a href="/product.html?id=${r.id}"
+                    <a href="${buildProductUrl(r)}"
                        class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                         <div class="aspect-square bg-gray-50 p-3 flex items-center justify-center">
                             <img src="${img}" alt="${r.title}"
