@@ -1,871 +1,529 @@
+// ============================================================
+// RETRODÍLNA.CZ – main script
+// ============================================================
+
 let currentCategory = 'all';
 let currentDesigner = 'all';
 let allProducts = [];
 let designers = [];
+let categories = [];
+let currentStep = 1;
+let currentModalProduct = null;
 
-async function loadProducts() {
+// ── Firebase/JSON data loading ────────────────────────────────────────────────
+async function loadData() {
+    let firebaseOk = false;
+
     try {
-        const response = await fetch('products.json');
-        const data = await response.json();
-        allProducts = data.products;
-        designers = data.designers;
-        
-        setupDesignersList();
-        displayProducts(filterProducts(allProducts));
-        setupFilters();
-        updateAvailableFilters();
-    } catch (error) {
-        console.error('Chyba při načítání produktů:', error);
-        const productsGrid = document.querySelector('.products-grid');
-        if (productsGrid) {
-            productsGrid.innerHTML = `
-                <div class="col-span-full text-center py-8">
-                    <p class="text-red-500">Chyba při načítání produktů. Zkuste obnovit stránku.</p>
-                </div>
-            `;
+        // Try Firebase
+        const [productsSnap, categoriesSnap, designersSnap] = await Promise.all([
+            db.collection('products').where('active', '==', true).get(),
+            db.collection('categories').orderBy('name').get(),
+            db.collection('designers').orderBy('name').get()
+        ]);
+
+        allProducts = productsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        categories = categoriesSnap.docs.map(d => d.data().name);
+        designers = designersSnap.docs.map(d => d.data().name);
+        firebaseOk = allProducts.length > 0;
+    } catch (e) {
+        console.warn('Firebase nedostupný, načítám products.json', e);
+    }
+
+    if (!firebaseOk) {
+        // Fallback to products.json
+        try {
+            const res = await fetch('products.json');
+            const data = await res.json();
+            allProducts = data.products || [];
+            categories = data.categories || [];
+            designers = data.designers || [];
+        } catch (e2) {
+            console.error('Nelze načíst data', e2);
+            renderProductsGrid([]);
+            return;
         }
     }
+
+    setupFilters();
+    renderProductsGrid(filterProducts(allProducts));
+    updateAvailableFilters();
+    displayWishlistItems();
 }
 
+// ── Filters ───────────────────────────────────────────────────────────────────
 function setupFilters() {
     setupCategoryFilters();
-    setupDesignerFilters();
+    setupDesignersList();
     setupMobileFilters();
 }
 
 function setupMobileFilters() {
-    const toggleBtn = document.getElementById('toggleFilters');
-    const filtersContainer = document.getElementById('filtersContainer');
-    
-    if (toggleBtn && filtersContainer) {
-        toggleBtn.addEventListener('click', () => {
-            const isHidden = filtersContainer.classList.contains('hidden');
-            filtersContainer.classList.toggle('hidden');
-            toggleBtn.textContent = isHidden ? 'Skrýt filtry' : 'Zobrazit filtry';
+    const btn = document.getElementById('toggleFilters');
+    const container = document.getElementById('filtersContainer');
+    const arrow = document.getElementById('filterArrow');
+    if (btn && container) {
+        btn.addEventListener('click', () => {
+            const hidden = container.classList.toggle('hidden');
+            if (arrow) arrow.style.transform = hidden ? '' : 'rotate(180deg)';
         });
     }
 }
 
+function setupCategoryFilters() {
+    const container = document.getElementById('categoriesContainer');
+    if (!container) return;
+
+    // Count products per category
+    const counts = {};
+    allProducts.forEach(p => { if (p.category) counts[p.category] = (counts[p.category] || 0) + 1; });
+
+    // Sort: assigned first, then by count
+    const sorted = [...categories].sort((a, b) => {
+        const hasA = counts[a] > 0;
+        const hasB = counts[b] > 0;
+        if (hasA !== hasB) return hasB - hasA;
+        return (counts[b] || 0) - (counts[a] || 0);
+    });
+
+    container.innerHTML = sorted.map(cat => {
+        const count = counts[cat] || 0;
+        const disabled = count === 0;
+        return `<button class="filter-btn category-btn ${disabled ? 'disabled' : ''}" 
+                        data-category="${cat}" 
+                        ${disabled ? 'disabled' : ''}
+                        onclick="selectCategory('${cat}')">
+                    ${cat} <span class="count">${count}</span>
+                </button>`;
+    }).join('');
+}
+
+function selectCategory(cat) {
+    currentCategory = currentCategory === cat ? 'all' : cat;
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === currentCategory);
+    });
+    renderProductsGrid(filterProducts(allProducts));
+    updateAvailableFilters();
+}
+
 function setupDesignersList() {
-    const designersList = document.getElementById('designersList');
+    const container = document.getElementById('designersList');
     const searchInput = document.getElementById('designerSearch');
-    
-    designers.forEach(designer => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-btn designer-btn';
-        btn.dataset.designer = designer;
-        btn.textContent = designer;
-        designersList.appendChild(btn);
+    if (!container) return;
+
+    const counts = {};
+    allProducts.forEach(p => { if (p.designer) counts[p.designer] = (counts[p.designer] || 0) + 1; });
+
+    const sorted = [...designers].sort((a, b) => {
+        const hasA = counts[a] > 0;
+        const hasB = counts[b] > 0;
+        if (hasA !== hasB) return hasB - hasA;
+        return (counts[b] || 0) - (counts[a] || 0);
     });
-    
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        document.querySelectorAll('.designer-btn').forEach(btn => {
-            const designer = btn.dataset.designer.toLowerCase();
-            btn.style.display = designer.includes(searchTerm) ? 'block' : 'none';
+
+    container.innerHTML = sorted.map(d => {
+        const count = counts[d] || 0;
+        const disabled = count === 0;
+        return `<button class="filter-btn designer-btn ${disabled ? 'disabled' : ''}"
+                        data-designer="${d}"
+                        ${disabled ? 'disabled' : ''}
+                        onclick="selectDesigner('${d}')">
+                    ${d} <span class="count">${count}</span>
+                </button>`;
+    }).join('');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', e => {
+            const term = e.target.value.toLowerCase();
+            container.querySelectorAll('.designer-btn').forEach(btn => {
+                btn.style.display = btn.dataset.designer.toLowerCase().includes(term) ? '' : 'none';
+            });
         });
+    }
+}
+
+function selectDesigner(d) {
+    currentDesigner = currentDesigner === d ? 'all' : d;
+    document.querySelectorAll('.designer-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.designer === currentDesigner);
     });
+    renderProductsGrid(filterProducts(allProducts));
+    updateAvailableFilters();
 }
 
 function filterProducts(products) {
-    return products.filter(product => {
-        const matchesCategory = currentCategory === 'all' || product.category === currentCategory;
-        const matchesDesigner = currentDesigner === 'all' || product.designer === currentDesigner;
-        return matchesCategory && matchesDesigner;
+    return products.filter(p => {
+        const okCat = currentCategory === 'all' || p.category === currentCategory;
+        const okDes = currentDesigner === 'all' || p.designer === currentDesigner;
+        return okCat && okDes;
     });
 }
 
-function setupDesignerFilters() {
-    const designerButtons = document.querySelectorAll('.designer-btn');
-    
-    // Count products per designer and check if assigned
-    const designerCounts = {};
-    const assignedDesigners = new Set();
-    allProducts.forEach(product => {
-        const designer = product.designer || 'Nespecifikováno';
-        designerCounts[designer] = (designerCounts[designer] || 0) + 1;
-        if (designer) {
-            assignedDesigners.add(designer);
-        }
-    });
+function resetFilters() {
+    currentCategory = 'all';
+    currentDesigner = 'all';
+    document.querySelectorAll('.category-btn, .designer-btn').forEach(btn => btn.classList.remove('active'));
+    const search = document.getElementById('designerSearch');
+    if (search) { search.value = ''; }
+    document.querySelectorAll('.designer-btn').forEach(btn => { btn.style.display = ''; });
+    renderProductsGrid(filterProducts(allProducts));
+    updateAvailableFilters();
+}
 
-    // Sort buttons: assigned first, then by count
-    const buttonsContainer = document.querySelector('.designer-btn').parentElement;
-    const buttons = Array.from(designerButtons);
-    
-    buttons.sort((a, b) => {
-        const designerA = a.dataset.designer;
-        const designerB = b.dataset.designer;
-        const isAssignedA = assignedDesigners.has(designerA);
-        const isAssignedB = assignedDesigners.has(designerB);
-        
-        // If one is assigned and other isn't, assigned comes first
-        if (isAssignedA !== isAssignedB) {
-            return isAssignedB - isAssignedA;
-        }
-        
-        // If both assigned or both unassigned, sort by count
-        return (designerCounts[designerB] || 0) - (designerCounts[designerA] || 0);
+function updateAvailableFilters() {
+    const filtered = filterProducts(allProducts);
+    const avCat = new Set();
+    const avDes = new Set();
+    const source = (currentCategory === 'all' && currentDesigner === 'all') ? allProducts : filtered;
+    source.forEach(p => {
+        if (p.category) avCat.add(p.category);
+        if (p.designer) avDes.add(p.designer);
     });
-
-    // Clear and reappend buttons in new order
-    buttons.forEach(button => buttonsContainer.removeChild(button));
-    buttons.forEach(button => {
-        const designer = button.dataset.designer;
-        const count = designerCounts[designer] || 0;
-        
-        button.innerHTML = `${designer} <span class="count">${count}</span>`;
-        
-        if (!assignedDesigners.has(designer)) {
-            button.classList.add('disabled');
-            button.disabled = true;
-        }
-        
-        if (currentDesigner === designer) {
-            button.classList.add('active');
-        }
-        
-        buttonsContainer.appendChild(button);
+    // Update counts and disabled state
+    const catCounts = {};
+    const desCounts = {};
+    filtered.forEach(p => {
+        if (p.category) catCounts[p.category] = (catCounts[p.category] || 0) + 1;
+        if (p.designer) desCounts[p.designer] = (desCounts[p.designer] || 0) + 1;
     });
-
-    // Add click handlers
-    designerButtons.forEach(button => {
-        if (!button.disabled) {
-            button.addEventListener('click', () => {
-                designerButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                currentDesigner = button.dataset.designer;
-                displayProducts(filterProducts(allProducts));
-                updateAvailableFilters();
-            });
-        }
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        const cat = btn.dataset.category;
+        const has = avCat.has(cat);
+        btn.classList.toggle('disabled', !has);
+        btn.disabled = !has;
+        const span = btn.querySelector('.count');
+        if (span) span.textContent = catCounts[cat] || 0;
+    });
+    document.querySelectorAll('.designer-btn').forEach(btn => {
+        const d = btn.dataset.designer;
+        const has = avDes.has(d);
+        btn.classList.toggle('disabled', !has);
+        btn.disabled = !has;
+        const span = btn.querySelector('.count');
+        if (span) span.textContent = desCounts[d] || 0;
     });
 }
 
-function setupCategoryFilters() {
-    const categoryButtons = document.querySelectorAll('.category-btn');
-    
-    // Count products per category and check if assigned
-    const categoryCounts = {};
-    const assignedCategories = new Set();
-    allProducts.forEach(product => {
-        const category = product.category || 'Nezařazeno';
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        if (category) {
-            assignedCategories.add(category);
-        }
-    });
+// ── Render products ───────────────────────────────────────────────────────────
+function renderProductsGrid(products) {
+    const grid = document.getElementById('productsGrid');
+    if (!grid) return;
 
-    // Sort buttons: assigned first, then by count
-    const buttonsContainer = document.querySelector('.category-btn').parentElement;
-    const buttons = Array.from(categoryButtons);
-    
-    buttons.sort((a, b) => {
-        const categoryA = a.dataset.category;
-        const categoryB = b.dataset.category;
-        const isAssignedA = assignedCategories.has(categoryA);
-        const isAssignedB = assignedCategories.has(categoryB);
-        
-        // If one is assigned and other isn't, assigned comes first
-        if (isAssignedA !== isAssignedB) {
-            return isAssignedB - isAssignedA;
-        }
-        
-        // If both assigned or both unassigned, sort by count
-        return (categoryCounts[categoryB] || 0) - (categoryCounts[categoryA] || 0);
-    });
+    if (products.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-16">
+            <i class="fas fa-search text-4xl text-gray-200 mb-4 block"></i>
+            <p class="text-gray-400 font-medium">Žádné produkty v této kategorii</p>
+            <button onclick="resetFilters()" class="mt-4 text-sm underline text-gray-500 hover:text-black">Resetovat filtry</button>
+        </div>`;
+        return;
+    }
 
-    // Clear and reappend buttons in new order
-    buttons.forEach(button => buttonsContainer.removeChild(button));
-    buttons.forEach(button => {
-        const category = button.dataset.category;
-        const count = categoryCounts[category] || 0;
-        
-        button.innerHTML = `${category} <span class="count">${count}</span>`;
-        
-        if (!assignedCategories.has(category)) {
-            button.classList.add('disabled');
-            button.disabled = true;
-        }
-        
-        if (currentCategory === category) {
-            button.classList.add('active');
-        }
-        
-        buttonsContainer.appendChild(button);
-    });
+    const wishlist = getWishlist();
+    grid.innerHTML = products.map(p => {
+        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+        const inWishlist = wishlist.includes(p.id);
+        return `
+        <a href="product.html?id=${p.id}" class="product-card group block">
+            <div class="product-image-container relative">
+                <button class="wishlist-btn ${inWishlist ? 'active' : ''}"
+                        data-product-id="${p.id}"
+                        onclick="event.preventDefault();toggleWishlist('${p.id}')">
+                    <i class="${inWishlist ? 'fas' : 'far'} fa-heart"></i>
+                </button>
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
+                     data-src="${img}"
+                     alt="${p.title}"
+                     class="product-image lazy"
+                     loading="lazy">
+            </div>
+            <div class="product-info">
+                <div class="product-title line-clamp-2">${p.title}</div>
+                <div class="product-price">${p.price || 'Dohodou'}</div>
+                ${p.location ? `<div class="product-location">${p.location}</div>` : ''}
+                <div class="product-meta">
+                    ${p.category ? `<span class="product-tag"><i class="fas fa-tag"></i> ${p.category}</span>` : ''}
+                    ${p.designer ? `<span class="product-tag"><i class="fas fa-industry"></i> ${p.designer}</span>` : ''}
+                </div>
+                <button class="inquiry-btn"
+                        onclick="event.preventDefault();openInquiryModal(${JSON.stringify(p).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
+                    <i class="fas fa-envelope mr-1.5"></i>Mám zájem
+                </button>
+            </div>
+        </a>`;
+    }).join('');
 
-    // Add click handlers
-    categoryButtons.forEach(button => {
-        if (!button.disabled) {
-            button.addEventListener('click', () => {
-                categoryButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                currentCategory = button.dataset.category;
-                displayProducts(filterProducts(allProducts));
-                updateAvailableFilters();
-            });
-        }
-    });
+    initLazyLoading();
 }
 
+function initLazyLoading() {
+    const images = document.querySelectorAll('img.lazy');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                img.classList.add('loaded');
+                observer.unobserve(img);
+            }
+        });
+    }, { rootMargin: '200px' });
+    images.forEach(img => observer.observe(img));
+}
+
+// ── Wishlist ──────────────────────────────────────────────────────────────────
 function getWishlist() {
     return JSON.parse(localStorage.getItem('wishlist') || '[]');
 }
 
-function showNotification(message, type = 'default') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    const icon = document.createElement('i');
-    icon.className = type === 'success' ? 'fas fa-check-circle' : 
-                    type === 'error' ? 'fas fa-exclamation-circle' : 
-                    'fas fa-info-circle';
-    
-    notification.appendChild(icon);
-    notification.appendChild(document.createTextNode(message));
-    
-    document.body.appendChild(notification);
-
-    setTimeout(() => notification.classList.add('show'), 100);
-
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-function scrollToWishlist() {
-    const wishlistSection = document.getElementById('wishlist');
-    wishlistSection.scrollIntoView({ behavior: 'smooth' });
-}
-
 function toggleWishlist(productId) {
     const wishlist = getWishlist();
-    const index = wishlist.indexOf(productId);
-    const isAdding = index === -1;
-    
-    if (isAdding) {
+    const idx = wishlist.indexOf(productId);
+    const adding = idx === -1;
+    if (adding) {
         wishlist.push(productId);
-        showNotification('Produkt byl přidán do wishlistu');
+        showNotification('Přidáno do wishlistu ❤️');
     } else {
-        wishlist.splice(index, 1);
-        showNotification('Produkt byl odebrán z wishlistu');
+        wishlist.splice(idx, 1);
+        showNotification('Odebráno z wishlistu');
     }
-    
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    updateWishlistUI(productId);
-    displayWishlistItems();
-
-    if (isAdding) {
-        setTimeout(scrollToWishlist, 300);
-    }
-}
-
-function updateWishlistUI(productId) {
-    const wishlist = getWishlist();
-    const buttons = document.querySelectorAll(`[data-product-id="${productId}"]`);
-    buttons.forEach(button => {
-        if (wishlist.includes(productId)) {
-            button.classList.add('active');
-            button.querySelector('i').classList.replace('far', 'fas');
-        } else {
-            button.classList.remove('active');
-            button.querySelector('i').classList.replace('fas', 'far');
+    // Update button states
+    document.querySelectorAll(`[data-product-id="${productId}"]`).forEach(btn => {
+        btn.classList.toggle('active', adding);
+        const icon = btn.querySelector('i');
+        if (icon) {
+            icon.className = adding ? 'fas fa-heart' : 'far fa-heart';
         }
     });
+    displayWishlistItems();
+    updateWishlistBadge();
 }
 
+function updateWishlistBadge() {
+    const count = getWishlist().length;
+    const badge = document.getElementById('wishlistBadge');
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle('hidden', count === 0);
+    }
+}
+
+function toggleWishlistSection() {
+    const section = document.getElementById('wishlistSection');
+    if (section) section.classList.toggle('hidden');
+}
+
+async function displayWishlistItems() {
+    const wishlist = getWishlist();
+    const container = document.getElementById('wishlist-items');
+    const countEl = document.getElementById('wishlist-count');
+    const totalEl = document.getElementById('wishlist-total');
+    if (!container) return;
+
+    updateWishlistBadge();
+
+    if (wishlist.length === 0) {
+        const section = document.getElementById('wishlistSection');
+        if (section) section.classList.add('hidden');
+        return;
+    }
+
+    const items = allProducts.filter(p => wishlist.includes(p.id));
+    if (countEl) countEl.textContent = items.length;
+    if (totalEl) {
+        const total = items.reduce((sum, p) => {
+            const n = parseInt((p.price || '0').replace(/[^0-9]/g, '')) || 0;
+            return sum + n;
+        }, 0);
+        totalEl.textContent = `${total.toLocaleString('cs-CZ')} Kč`;
+    }
+
+    container.innerHTML = items.map(p => {
+        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+        return `
+        <div class="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm">
+            <a href="product.html?id=${p.id}" class="shrink-0">
+                <img src="${img}" alt="${p.title}" class="w-16 h-16 object-contain rounded-xl bg-gray-50">
+            </a>
+            <div class="flex-1 min-w-0">
+                <a href="product.html?id=${p.id}" class="font-semibold text-sm line-clamp-2 hover:underline">${p.title}</a>
+                <p class="text-gray-600 text-sm mt-0.5">${p.price || 'Dohodou'}</p>
+            </div>
+            <div class="flex gap-2 shrink-0">
+                <button onclick="openInquiryModal(${JSON.stringify(p).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})"
+                        class="px-3 py-1.5 bg-black text-white rounded-full text-xs font-bold hover:bg-gray-800 transition-colors">
+                    Zájem
+                </button>
+                <button onclick="toggleWishlist('${p.id}')"
+                        class="px-3 py-1.5 border-2 border-red-200 text-red-500 rounded-full text-xs font-bold hover:bg-red-50 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Inquiry modal ─────────────────────────────────────────────────────────────
 function openInquiryModal(product) {
+    currentModalProduct = product;
+    currentStep = 1;
+    updateModalStepUI();
+
+    const img = Array.isArray(product.images) && product.images.length ? product.images[0] : (product.image || '');
+    document.getElementById('modalProductImage').src = img;
+    document.getElementById('modalProductTitle').textContent = product.title;
+    document.getElementById('modalProductPrice').textContent = product.price || 'Dohodou';
+    document.getElementById('hProductTitle').value = product.title;
+    document.getElementById('hProductPrice').value = product.price || '';
+    document.getElementById('hProductUrl').value = `https://www.retrodilna.cz/product.html?id=${product.id}`;
+
     const modal = document.getElementById('inquiryModal');
-    const titleInput = document.getElementById('productTitle');
-    titleInput.value = product.title;
-    titleInput.dataset.productId = product.id;
-    document.getElementById('productPrice').value = product.price;
-    document.getElementById('productUrl').value = product.url;
-    selectedProducts.clear();
-    updateSelectedProductsList();
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 }
 
 function closeInquiryModal() {
     const modal = document.getElementById('inquiryModal');
-    const form = document.getElementById('inquiryForm');
-    
-    // Reset form
-    form.reset();
-    selectedProducts.clear();
-    
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.getElementById('inquiryForm').reset();
+    currentStep = 1;
+    updateModalStepUI();
     // Reset company fields
     const companyFields = document.getElementById('companyFields');
-    const toggleCompany = document.getElementById('toggleCompany');
-    if (toggleCompany) {
-        toggleCompany.querySelector('i').style.transform = 'rotate(0)';
-    }
     if (companyFields) {
-        companyFields.classList.add('hidden', 'opacity-0');
+        companyFields.classList.add('hidden');
+        const arrow = document.getElementById('companyArrow');
+        if (arrow) arrow.style.transform = '';
     }
-    
-    // Reset product selection
-    const productSelection = document.getElementById('productSelection');
-    const toggleProducts = document.getElementById('toggleProducts');
-    if (toggleProducts) {
-        toggleProducts.querySelector('i').style.transform = 'rotate(0)';
-    }
-    if (productSelection) {
-        productSelection.classList.add('hidden', 'opacity-0');
-    }
-
-    // Hide modal with fade effect
-    modal.classList.add('opacity-0');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex', 'opacity-0');
-        
-        // Scroll to products section
-        const productsSection = document.getElementById('produkty');
-        if (productsSection) {
-            productsSection.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, 300);
 }
 
-function displayProducts(products) {
-    const productsGrid = document.querySelector('.products-grid');
-    if (!productsGrid) return;
-    
-    const wishlist = getWishlist();
-    
-    if (products.length === 0) {
-        productsGrid.innerHTML = `
-            <div class="col-span-full text-center py-8">
-                <p class="text-gray-500">Žádné produkty v této kategorii</p>
-            </div>
-        `;
-        return;
-    }
-    
-    productsGrid.innerHTML = '';
-    
-    products.forEach(product => {
-        const isInWishlist = wishlist.includes(product.id);
-        const productElement = document.createElement('div');
-        productElement.className = 'product-card';
-        productElement.innerHTML = `
-            <div class="product-image-container relative">
-                <button 
-                    class="wishlist-btn ${isInWishlist ? 'active' : ''}"
-                    data-product-id="${product.id}"
-                    onclick="toggleWishlist('${product.id}')"
-                >
-                    <i class="${isInWishlist ? 'fas' : 'far'} fa-heart"></i>
-                </button>
-                <a href="${product.url}" target="_blank">
-                    <img 
-                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
-                        data-src="${product.image}" 
-                        alt="${product.title}" 
-                        class="product-image lazy"
-                        loading="lazy">
-                </a>
-            </div>
-            <div class="product-info">
-                <div class="product-title">${product.title}</div>
-                <div class="product-price">${product.price}</div>
-                <div class="product-location">${product.location}</div>
-                <div class="product-details text-sm text-gray-600 space-y-1 mt-2">
-                    <div>
-                        <i class="fas fa-tag mr-1"></i> 
-                        Kategorie: ${product.category || 'Nezařazeno'}
-                    </div>
-                    <div>
-                        <i class="fas fa-industry mr-1"></i> 
-                        Výrobce / Designer: ${product.designer || 'Nespecifikováno'}
-                    </div>
-                </div>
-                <div class="contact-buttons flex flex-col gap-2 mt-4 mb-2">
-                    <a href="tel:+420603538440" class="flex items-center text-gray-600 hover:text-black">
-                        <i class="fas fa-phone mr-2"></i>
-                        <span class="text-sm">603 538 440</span>
-                    </a>
-                    <a href="mailto:Retrodilna@seznam.cz" class="flex items-center text-gray-600 hover:text-black">
-                        <i class="fas fa-envelope mr-2"></i>
-                        <span class="text-sm">Retrodilna@seznam.cz</span>
-                    </a>
-                </div>
-                <button 
-                    onclick='openInquiryModal(${JSON.stringify(product).replace(/'/g, "&#39;")})' 
-                    class="w-full mt-2 bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition-colors"
-                >
-                    Mám zájem
-                </button>
-            </div>
-        `;
-        productsGrid.appendChild(productElement);
-    });
-
-    initLazyLoading();
-}
-
-function initLazyLoading() {
-    const lazyImages = document.querySelectorAll('img.lazy');
-    
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.classList.remove('lazy');
-                observer.unobserve(img);
-            }
-        });
-    });
-
-    lazyImages.forEach(img => imageObserver.observe(img));
-}
-
-function setupScrollToTop() {
-    const scrollBtn = document.getElementById('scrollTopBtn');
-    
-    function checkScrollPosition() {
-        if (window.pageYOffset > 300) {
-            scrollBtn.classList.remove('opacity-0', 'translate-y-10');
-            scrollBtn.classList.add('opacity-100', 'translate-y-0');
-        } else {
-            scrollBtn.classList.add('opacity-0', 'translate-y-10');
-            scrollBtn.classList.remove('opacity-100', 'translate-y-0');
+function modalNext() {
+    if (currentStep === 2) {
+        const step = document.getElementById('mStep2');
+        const required = step ? step.querySelectorAll('[required]') : [];
+        for (const el of required) {
+            if (!el.checkValidity()) { el.reportValidity(); return; }
         }
     }
+    if (currentStep < 3) { currentStep++; updateModalStepUI(); }
+}
 
-    scrollBtn.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+function modalPrev() {
+    if (currentStep > 1) { currentStep--; updateModalStepUI(); }
+}
+
+function updateModalStepUI() {
+    [1, 2, 3].forEach(n => {
+        const el = document.getElementById(`mStep${n}`);
+        if (el) el.classList.toggle('hidden', n !== currentStep);
     });
-
-    window.addEventListener('scroll', checkScrollPosition);
-}
-
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert('Zkopírováno do schránky!');
-    }).catch(err => {
-        console.error('Chyba při kopírování:', err);
-    });
-}
-
-function formatWishlistText(products) {
-    return products.map(product => 
-        `${product.title}\nCena: ${product.price}\nOdkaz: ${product.url}\n`
-    ).join('\n---\n');
-}
-
-async function displayWishlistItems() {
-    const wishlist = getWishlist();
-    const wishlistSection = document.getElementById('wishlist');
-    const wishlistContainer = document.getElementById('wishlist-items');
-    const wishlistCount = document.getElementById('wishlist-count');
-    const wishlistTotal = document.getElementById('wishlist-total');
-    
-    if (!wishlistContainer) return;
-
-    try {
-        const response = await fetch('products.json');
-        const data = await response.json();
-        const wishlistProducts = data.products.filter(product => wishlist.includes(product.id));
-
-        if (wishlistProducts.length === 0) {
-            wishlistSection.classList.add('hidden');
-            return;
-        } else {
-            wishlistSection.classList.remove('hidden');
-        }
-
-        wishlistCount.textContent = wishlistProducts.length;
-        const total = wishlistProducts.reduce((sum, product) => {
-            const price = parseInt(product.price.replace(/[^0-9]/g, ''));
-            return sum + price;
-        }, 0);
-        wishlistTotal.textContent = `${total.toLocaleString()} Kč`;
-
-        const copyText = formatWishlistText(wishlistProducts);
-        
-        wishlistContainer.innerHTML = `
-            <button 
-                onclick="copyToClipboard(\`${copyText}\`)"
-                class="w-full mb-4 bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition-colors"
-            >
-                Zkopírovat seznam pro sdílení
-            </button>
-            ${wishlistProducts.map(product => `
-                <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow">
-                    <div class="flex items-center gap-4">
-                        <img src="${product.image}" alt="${product.title}" class="w-16 h-16 object-cover rounded">
-                        <div>
-                            <h3 class="font-semibold">${product.title}</h3>
-                            <p class="text-gray-600">${product.price}</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <a href="${product.url}" target="_blank" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
-                            Zobrazit
-                        </a>
-                        <button 
-                            onclick="toggleWishlist('${product.id}')"
-                            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                            Odebrat
-                        </button>
-                    </div>
-                </div>
-            `).join('')}
-        `;
-
-    } catch (error) {
-        console.error('Chyba při načítání wishlistu:', error);
-    }
+    const label = document.getElementById('stepLabel');
+    if (label) label.textContent = `Krok ${currentStep} ze 3`;
+    const bar = document.getElementById('modalProgressBar');
+    if (bar) bar.style.width = `${Math.round((currentStep / 3) * 100)}%`;
 }
 
 function toggleCompanyFields() {
-    const companyFields = document.getElementById('companyFields');
-    const toggleButton = document.getElementById('toggleCompany');
-    const icon = toggleButton.querySelector('i');
-    const isExpanded = !companyFields.classList.contains('hidden');
-
-    if (!isExpanded) {
-        companyFields.classList.remove('hidden');
-        setTimeout(() => {
-            companyFields.classList.remove('opacity-0');
-            icon.style.transform = 'rotate(180deg)';
-        }, 10);
-    } else {
-        companyFields.classList.add('opacity-0');
-        icon.style.transform = 'rotate(0)';
-        setTimeout(() => {
-            companyFields.classList.add('hidden');
-        }, 300);
-    }
-
-    const companyInputs = companyFields.querySelectorAll('input, textarea');
-    companyInputs.forEach(input => {
-        input.required = !isExpanded;
-    });
+    const fields = document.getElementById('companyFields');
+    const arrow = document.getElementById('companyArrow');
+    if (!fields) return;
+    const hidden = fields.classList.toggle('hidden');
+    if (arrow) arrow.style.transform = hidden ? '' : 'rotate(180deg)';
 }
 
-let selectedProducts = new Set();
-
-function toggleProductSelection() {
-    const productSelection = document.getElementById('productSelection');
-    const toggleButton = document.getElementById('toggleProducts');
-    const icon = toggleButton.querySelector('i');
-    const isExpanded = !productSelection.classList.contains('hidden');
-
-    if (!isExpanded) {
-        productSelection.classList.remove('hidden');
-        setTimeout(() => {
-            productSelection.classList.remove('opacity-0');
-            icon.style.transform = 'rotate(180deg)';
-            loadAvailableProducts();
-        }, 10);
-    } else {
-        productSelection.classList.add('opacity-0');
-        icon.style.transform = 'rotate(0)';
-        setTimeout(() => {
-            productSelection.classList.add('hidden');
-        }, 300);
-    }
-}
-
-async function loadAvailableProducts() {
-    try {
-        const response = await fetch('products.json');
-        const data = await response.json();
-        const mainProductId = document.querySelector('[name="productTitle"]').dataset.productId;
-        const productList = document.getElementById('productList');
-        
-        productList.innerHTML = data.products
-            .filter(product => product.id !== mainProductId)
-            .map(product => `
-                <div 
-                    class="product-select-card ${selectedProducts.has(product.id) ? 'selected' : ''}"
-                    data-product-id="${product.id}"
-                >
-                    <div class="product-select-image">
-                        <img src="${product.image}" alt="${product.title}" class="w-full h-48 object-contain rounded-t-lg">
-                    </div>
-                    <div class="p-4 text-center">
-                        <div class="font-medium text-sm mb-2 line-clamp-2">${product.title}</div>
-                        <div class="text-gray-600 font-bold">${product.price}</div>
-                    </div>
-                    <div class="check-icon ${selectedProducts.has(product.id) ? 'visible' : ''}">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-            `).join('');
-
-        productList.querySelectorAll('.product-select-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const productId = card.dataset.productId;
-                handleProductClick(productId);
-                
-                card.classList.toggle('selected');
-                const checkIcon = card.querySelector('.check-icon');
-                checkIcon.classList.toggle('visible');
-            });
-        });
-
-        updateSelectedProductsList();
-    } catch (error) {
-        console.error('Chyba při načítání produktů:', error);
-    }
-}
-
-function handleProductClick(productId) {
-    if (selectedProducts.has(productId)) {
-        selectedProducts.delete(productId);
-    } else {
-        selectedProducts.add(productId);
-    }
-    updateSelectedProductsList();
-}
-
-function updateSelectedProductsList() {
-    const selectedProductsContainer = document.getElementById('selectedProducts');
-    if (!selectedProductsContainer) return;
-
-    if (selectedProducts.size === 0) {
-        selectedProductsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center">Žádné další vybrané produkty</p>';
-        return;
-    }
-
-    fetch('products.json')
-        .then(response => response.json())
-        .then(data => {
-            const selectedProductsData = data.products.filter(p => selectedProducts.has(p.id));
-            selectedProductsContainer.innerHTML = `
-                <div class="text-sm font-medium text-gray-700 mb-2">Vybrané produkty:</div>
-                ${selectedProductsData.map(product => `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <img src="${product.image}" alt="${product.title}" class="w-12 h-12 object-contain rounded">
-                            <div class="flex-1 min-w-0">
-                                <div class="font-medium text-sm truncate">${product.title}</div>
-                                <div class="text-gray-600">${product.price}</div>
-                            </div>
-                        </div>
-                        <button type="button" 
-                            onclick="handleProductClick('${product.id}', null)"
-                            class="text-red-500 hover:text-red-700 p-1"
-                        >
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `).join('')}
-            `;
-        });
-}
-
-function resetFilters() {
-    currentCategory = 'all';
-    currentDesigner = 'all';
-    
-    document.querySelectorAll('.category-btn, .designer-btn').forEach(btn => {
-        btn.classList.remove('active', 'disabled');
-        btn.disabled = false;
-    });
-    
-    const searchInput = document.getElementById('designerSearch');
-    if(searchInput) {
-        searchInput.value = '';
-    }
-    
-    document.querySelectorAll('.designer-btn').forEach(btn => {
-        btn.style.display = 'block';
-    });
-    
-    displayProducts(filterProducts(allProducts));
-    updateAvailableFilters();
-}
-
-function updateAvailableFilters() {
-    // Get currently filtered products
-    const filteredProducts = filterProducts(allProducts);
-    
-    // Get available categories and designers from filtered products
-    const availableCategories = new Set();
-    const availableDesigners = new Set();
-    
-    if (currentCategory === 'all' && currentDesigner === 'all') {
-        // If no filters are active, show all options
-        allProducts.forEach(product => {
-            if (product.category) availableCategories.add(product.category);
-            if (product.designer) availableDesigners.add(product.designer);
-        });
-    } else {
-        // If a filter is active, show only relevant options
-        filteredProducts.forEach(product => {
-            if (product.category) availableCategories.add(product.category);
-            if (product.designer) availableDesigners.add(product.designer);
-        });
-    }
-
-    // Update category buttons
-    document.querySelectorAll('.category-btn').forEach(button => {
-        const category = button.dataset.category;
-        if (category === 'all' || availableCategories.has(category)) {
-            button.classList.remove('disabled');
-            button.disabled = false;
+// ── Scroll to top ─────────────────────────────────────────────────────────────
+function setupScrollToTop() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            btn.classList.remove('opacity-0', 'translate-y-10');
+            btn.classList.add('opacity-100', 'translate-y-0');
         } else {
-            button.classList.add('disabled');
-            button.disabled = true;
+            btn.classList.add('opacity-0', 'translate-y-10');
+            btn.classList.remove('opacity-100', 'translate-y-0');
         }
     });
-
-    // Update designer buttons
-    document.querySelectorAll('.designer-btn').forEach(button => {
-        const designer = button.dataset.designer;
-        if (designer === 'all' || availableDesigners.has(designer)) {
-            button.classList.remove('disabled');
-            button.disabled = false;
-        } else {
-            button.classList.add('disabled');
-            button.disabled = true;
-        }
-    });
-
-    // Update counts on buttons
-    updateFilterCounts(filteredProducts);
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-function updateFilterCounts(products) {
-    const categoryCounts = {};
-    const designerCounts = {};
-    
-    products.forEach(product => {
-        const category = product.category || 'Nezařazeno';
-        const designer = product.designer || 'Nespecifikováno';
-        
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        designerCounts[designer] = (designerCounts[designer] || 0) + 1;
-    });
-
-    // Update category counts
-    document.querySelectorAll('.category-btn').forEach(button => {
-        const category = button.dataset.category;
-        const count = categoryCounts[category] || 0;
-        const countSpan = button.querySelector('.count');
-        if (countSpan) {
-            countSpan.textContent = count;
-        } else {
-            button.innerHTML = `${category} <span class="count">${count}</span>`;
-        }
-    });
-
-    // Update designer counts
-    document.querySelectorAll('.designer-btn').forEach(button => {
-        const designer = button.dataset.designer;
-        const count = designerCounts[designer] || 0;
-        const countSpan = button.querySelector('.count');
-        if (countSpan) {
-            countSpan.textContent = count;
-        } else {
-            button.innerHTML = `${designer} <span class="count">${count}</span>`;
-        }
-    });
+// ── Mobile menu ───────────────────────────────────────────────────────────────
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    if (menu) menu.classList.toggle('hidden');
 }
 
+// ── Notification ──────────────────────────────────────────────────────────────
+function showNotification(msg, type = 'default') {
+    const el = document.getElementById('notification');
+    const icon = document.getElementById('notifIcon');
+    const text = document.getElementById('notifText');
+    if (!el) return;
+    if (icon) icon.className = type === 'success' ? 'fas fa-check-circle text-green-400'
+                              : type === 'error'   ? 'fas fa-exclamation-circle text-red-400'
+                              :                      'fas fa-info-circle';
+    if (text) text.textContent = msg;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 3500);
+}
+
+// ── DOMContentLoaded ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
-    setupScrollToTop();
-    displayWishlistItems();
-    
     emailjs.init("TJRmVM_YRqmfCKXKn");
 
-    const inquiryForm = document.getElementById('inquiryForm');
-    if (inquiryForm) {
-        inquiryForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Show loading overlay
-            const loadingOverlay = document.querySelector('.loading-overlay');
-            const progressBar = document.querySelector('.progress-bar-fill');
-            loadingOverlay.classList.add('active');
-            
-            // Simulate progress
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 30;
-                if (progress > 90) progress = 90;
-                progressBar.style.width = `${progress}%`;
-            }, 500);
-            
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
+    loadData();
+    setupScrollToTop();
+    updateWishlistBadge();
 
-            try {
-                const productsResponse = await fetch('products.json');
-                const productsData = await productsResponse.json();
-                const selectedProductsData = productsData.products
-                    .filter(p => selectedProducts.has(p.id))
-                    .map(p => `${p.title} (${p.price}) - ${p.url}`)
-                    .join('\n');
-
-                const emailData = {
-                    service_id: 'service_4xb9s3i',
-                    template_id: 'template_nuyzj2z',
-                    template_params: {
-                        to_email: 'retrodilna@seznam.cz',
-                        from_name: data.name,
-                        from_email: data.email,
-                        phone: data.phone,
-                        address: data.address,
-                        is_company: !document.getElementById('companyFields').classList.contains('hidden') ? 'Ano' : 'Ne',
-                        company_name: data.companyName || '',
-                        company_address: data.companyAddress || '',
-                        ic: data.ic || '',
-                        dic: data.dic || '',
-                        note: data.note,
-                        product_title: data.productTitle,
-                        product_price: data.productPrice,
-                        product_url: data.productUrl,
-                        additional_products: selectedProductsData || 'Žádné další produkty'
-                    }
-                };
-
-                await emailjs.send(
-                    emailData.service_id,
-                    emailData.template_id,
-                    emailData.template_params
-                );
-
-                // Complete progress bar
-                progressBar.style.width = '100%';
-                setTimeout(() => {
-                    clearInterval(progressInterval);
-                    loadingOverlay.classList.remove('active');
-                    showNotification('Zpráva byla úspěšně odeslána', 'success');
-                    closeInquiryModal();
-                    
-                    // Scroll to products section
-                    const productsSection = document.getElementById('produkty');
-                    if (productsSection) {
-                        productsSection.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }, 500);
-
-            } catch (error) {
-                console.error('FAILED...', error);
-                clearInterval(progressInterval);
-                loadingOverlay.classList.remove('active');
-                showNotification('Došlo k chybě při odesílání', 'error');
-            }
-        });
+    // Close modal on backdrop click
+    const modal = document.getElementById('inquiryModal');
+    if (modal) {
+        modal.addEventListener('click', e => { if (e.target === modal) closeInquiryModal(); });
     }
 
-    const companyToggle = document.getElementById('isCompany');
-    if (companyToggle) {
-        companyToggle.addEventListener('change', toggleCompanyFields);
+    // Inquiry form submit
+    const form = document.getElementById('inquiryForm');
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const overlay = this.querySelector('.loading-overlay');
+            if (overlay) { overlay.classList.remove('hidden'); overlay.classList.add('flex'); }
+
+            const fd = new FormData(this);
+            const d = Object.fromEntries(fd);
+            const isCompany = document.getElementById('companyFields') &&
+                              !document.getElementById('companyFields').classList.contains('hidden');
+
+            try {
+                await emailjs.send('service_4xb9s3i', 'template_nuyzj2z', {
+                    to_email: 'retrodilna@seznam.cz',
+                    from_name: d.name,
+                    from_email: d.email,
+                    phone: d.phone,
+                    address: d.address,
+                    is_company: isCompany ? 'Ano' : 'Ne',
+                    company_name: d.companyName || '',
+                    company_address: '',
+                    ic: d.ic || '',
+                    dic: d.dic || '',
+                    note: d.note || '',
+                    product_title: d.productTitle,
+                    product_price: d.productPrice,
+                    product_url: d.productUrl,
+                    additional_products: d.additional_products || 'Žádné další produkty'
+                });
+
+                if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+                closeInquiryModal();
+                showNotification('Poptávka úspěšně odeslána!', 'success');
+            } catch (err) {
+                console.error(err);
+                if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+                showNotification('Chyba při odesílání. Zkuste to znovu.', 'error');
+            }
+        });
     }
 });
