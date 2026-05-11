@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Firebase -->
@@ -29,23 +29,31 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Exo 2', 'sans-serif'] },
-                    borderRadius: { '2xl': '1rem', '3xl': '1.5rem', '4xl': '2rem' }
-                }
-            }
-        }
-    </script>
-
     <style>
         .admin-input {
-            @apply w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors;
+            width: 100%;
+            border-width: 2px;
+            border-style: solid;
+            border-color: rgb(229, 231, 235);
+            border-radius: 1rem;
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            outline: none;
+            transition: border-color 0.15s cubic-bezier(.4,0,.2,1);
+        }
+        .admin-input:focus {
+            border-color: #000;
         }
         .admin-label {
-            @apply block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5;
+            display: block;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            font-weight: 700;
+            color: rgb(107, 114, 128);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.375rem;
         }
         .image-preview-item {
             position: relative;

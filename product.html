@@ -3,8 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Base URL: ensures all relative links resolve from site root even after history.replaceState -->
-    <base href="/">
+    <!-- Dynamic base URL: resolves site root correctly for any deployment path
+         (e.g. / on custom domain OR /RTRDLN/ on GitHub Pages).
+         Must run before any relative-URL resources are parsed. -->
+    <script>
+        (function () {
+            var baseElement = document.createElement('base');
+            var basePath = location.pathname
+                .replace(/\/product\.html$/, '/')
+                .replace(/\/produkt\/.*$/, '/');
+            if (!basePath.endsWith('/')) basePath += '/';
+            baseElement.href = basePath;
+            document.head.appendChild(baseElement);
+        })();
+    </script>
 
     <!-- SEO – dynamicky doplněno JS -->
     <title id="pageTitle">Produkt | Retrodílna.cz</title>
@@ -40,7 +52,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
@@ -50,18 +62,6 @@
     <script src="firebase-config.js"></script>
 
     <link rel="stylesheet" href="style.css">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { primary: '#0a0a0a', secondary: '#fafafa' },
-                    fontFamily: { sans: ['Exo 2', 'sans-serif'] },
-                    borderRadius: { '2xl': '1rem', '3xl': '1.5rem', '4xl': '2rem' }
-                }
-            }
-        }
-    </script>
 
     <!-- JSON-LD structured data – doplněno JS -->
     <script type="application/ld+json" id="productSchema">{}</script>
