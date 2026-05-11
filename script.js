@@ -111,6 +111,7 @@ function setupCategoryFilters() {
                         data-category="${cat}" 
                         ${disabled ? 'disabled' : ''}
                         onclick="selectCategory('${cat}')">
+                    <span class="filter-dot"></span>
                     ${cat} <span class="count">${count}</span>
                 </button>`;
     }).join('');
@@ -147,6 +148,7 @@ function setupDesignersList() {
                         data-designer="${d}"
                         ${disabled ? 'disabled' : ''}
                         onclick="selectDesigner('${d}')">
+                    <span class="filter-dot"></span>
                     ${d} <span class="count">${count}</span>
                 </button>`;
     }).join('');
@@ -428,8 +430,8 @@ async function displayWishlistItems() {
             </div>
             <div class="flex gap-2 shrink-0">
                 <button data-action="wishlist-inquiry" data-product-id="${escapeHtml(p.id)}"
-                        class="px-3 py-1.5 bg-black text-white rounded-full text-xs font-bold hover:bg-gray-800 transition-colors">
-                    Zájem
+                        class="px-3 py-1.5 bg-black text-white rounded-full text-xs font-bold hover:bg-gray-800 transition-colors flex items-center gap-1.5">
+                    <i class="fas fa-heart text-red-400"></i> Mám zájem
                 </button>
                 <button data-action="wishlist-remove" data-product-id="${escapeHtml(p.id)}"
                         class="px-3 py-1.5 border-2 border-red-200 text-red-500 rounded-full text-xs font-bold hover:bg-red-50 transition-colors">

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Base URL: ensures all relative links resolve from site root even after history.replaceState -->
+    <base href="/">
 
     <!-- SEO – dynamicky doplněno JS -->
     <title id="pageTitle">Produkt | Retrodílna.cz</title>
@@ -180,8 +182,15 @@
                             </div>
 
                             <!-- CTA buttons -->
-                            <div class="flex flex-col sm:flex-row gap-3 mt-2">
+                            <div class="flex items-center gap-3 mt-2">
+                                <button id="btnWishlistDetail"
+                                        onclick="toggleWishlistDetail()"
+                                        title="Přidat do wishlistu"
+                                        class="flex-none w-12 h-12 border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-red-400 hover:text-red-500 transition-colors">
+                                    <i id="btnWishlistIcon" class="far fa-heart text-base"></i>
+                                </button>
                                 <button id="btnMamZajem"
+                                        onclick="openModal()"
                                         class="flex-1 bg-black text-white py-3.5 px-6 rounded-full font-bold text-base hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                                     <i class="fas fa-envelope"></i> Mám zájem
                                 </button>
@@ -255,12 +264,22 @@
                              class="w-16 h-16 object-contain rounded-xl bg-white flex-shrink-0">
                         <div class="flex-1 min-w-0">
                             <p id="modalProductTitle" class="font-semibold line-clamp-2 text-sm"></p>
-                            <p id="modalProductPrice" class="text-gray-600 mt-1"></p>
+                            <p id="modalProductPrice" class="text-gray-600 mt-1 text-sm"></p>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500">
-                        Chcete se zeptat na tento produkt nebo ho objednat? Klikněte na <strong>Pokračovat</strong>.
-                    </p>
+
+                    <!-- Additional products selection -->
+                    <div id="additionalProductsSection" class="hidden">
+                        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Přidat další produkty</p>
+                        <div id="additionalProductsList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                    </div>
+
+                    <!-- Running total -->
+                    <div id="inquiryTotalRow" class="flex justify-between items-center pt-2 border-t border-gray-100">
+                        <span class="text-sm text-gray-500">Celkem:</span>
+                        <span id="inquiryTotalPrice" class="text-base font-bold text-[#0a0a0a]">—</span>
+                    </div>
+
                     <button type="button" onclick="nextStep()"
                             class="w-full bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">
                         Pokračovat <i class="fas fa-arrow-right ml-1"></i>
@@ -343,6 +362,16 @@
                                            class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors">
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Order summary -->
+                    <div id="orderSummary" class="bg-gray-50 rounded-2xl p-4 text-sm">
+                        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Shrnutí objednávky</p>
+                        <div id="summaryList" class="space-y-1.5"></div>
+                        <div class="border-t border-gray-200 mt-2 pt-2 flex justify-between font-bold">
+                            <span>Celkem</span>
+                            <span id="summaryTotal">—</span>
                         </div>
                     </div>
 
@@ -505,21 +534,22 @@
                 ? `${p.description.substring(0, 140)} — Retrodílna.cz`
                 : `${p.title} za ${p.price}. Vintage nábytek a retro design. Retrodílna.cz`;
             const prettyUrl = buildProductUrl(p);
-            const productUrl = `https://www.retrodilna.cz/product.html?id=${p.id}`;
+            const absolutePrettyUrl = `https://www.retrodilna.cz/produkt/${slugify(p.title)}/${p.id}`;
             const mainImage = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
 
-            // Update browser URL to pretty format
+            // Update browser URL to pretty format (visible in address bar)
             try {
-                history.replaceState(null, '', prettyUrl);
+                history.replaceState(null, seoTitle, prettyUrl);
             } catch (e) { console.warn('history.replaceState failed:', e); }
 
             document.getElementById('pageTitle').textContent = seoTitle;
             document.getElementById('metaDesc').setAttribute('content', seoDesc);
-            document.getElementById('canonicalUrl').setAttribute('href', productUrl);
+            // Canonical and og:url point to the pretty URL for better SEO indexing
+            document.getElementById('canonicalUrl').setAttribute('href', absolutePrettyUrl);
             document.getElementById('ogTitle').setAttribute('content', seoTitle);
             document.getElementById('ogDesc').setAttribute('content', seoDesc);
             document.getElementById('ogImage').setAttribute('content', mainImage);
-            document.getElementById('ogUrl').setAttribute('content', productUrl);
+            document.getElementById('ogUrl').setAttribute('content', absolutePrettyUrl);
             document.getElementById('twTitle').setAttribute('content', seoTitle);
             document.getElementById('twDesc').setAttribute('content', seoDesc);
             document.getElementById('twImage').setAttribute('content', mainImage);
@@ -533,7 +563,8 @@
                 "image": Array.isArray(p.images) ? p.images : (p.image ? [p.image] : []),
                 "offers": buildOfferSchema(p),
                 "brand": { "@type": "Brand", "name": p.designer || "Retrodílna" },
-                "category": p.category || ""
+                "category": p.category || "",
+                "url": absolutePrettyUrl
             };
             document.getElementById('productSchema').textContent = JSON.stringify(schema);
 
@@ -617,13 +648,13 @@
             // Inquiry modal prefill
             document.getElementById('hProductTitle').value = p.title;
             document.getElementById('hProductPrice').value = p.price || '';
-            document.getElementById('hProductUrl').value = productUrl;
+            document.getElementById('hProductUrl').value = absolutePrettyUrl;
             document.getElementById('modalProductTitle').textContent = p.title;
-            document.getElementById('modalProductPrice').textContent = p.price || '';
+            document.getElementById('modalProductPrice').textContent = p.price || 'Dohodou';
             document.getElementById('modalProductImage').src = mainImage;
 
-            // CTA button
-            document.getElementById('btnMamZajem').addEventListener('click', openModal);
+            // Wishlist detail button state
+            updateWishlistDetailBtn();
         }
 
         function switchImage(src) {
@@ -646,7 +677,7 @@
             document.getElementById('relatedGrid').innerHTML = related.map(r => {
                 const img = Array.isArray(r.images) && r.images.length ? r.images[0] : (r.image || '');
                 return `
-                    <a href="product.html?id=${r.id}"
+                    <a href="/product.html?id=${r.id}"
                        class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                         <div class="aspect-square bg-gray-50 p-3 flex items-center justify-center">
                             <img src="${img}" alt="${r.title}"
@@ -661,10 +692,156 @@
             }).join('');
         }
 
+        // ── Wishlist (product detail page) ──────────────────────────────────────
+        function getWishlist() {
+            return JSON.parse(localStorage.getItem('wishlist') || '[]');
+        }
+
+        function toggleWishlistDetail() {
+            if (!currentProduct) return;
+            const wishlist = getWishlist();
+            const id = currentProduct.id;
+            const idx = wishlist.indexOf(id);
+            const adding = idx === -1;
+            if (adding) {
+                wishlist.push(id);
+            } else {
+                wishlist.splice(idx, 1);
+            }
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            updateWishlistDetailBtn();
+            showNotification(adding ? 'Přidáno do wishlistu ❤️' : 'Odebráno z wishlistu');
+        }
+
+        function updateWishlistDetailBtn() {
+            if (!currentProduct) return;
+            const inWishlist = getWishlist().includes(currentProduct.id);
+            const btn = document.getElementById('btnWishlistDetail');
+            const icon = document.getElementById('btnWishlistIcon');
+            if (btn) {
+                btn.classList.toggle('active-wishlist', inWishlist);
+            }
+            if (icon) {
+                icon.className = inWishlist ? 'fas fa-heart text-red-500 text-base' : 'far fa-heart text-base';
+            }
+        }
+
+        // ── Additional products (inquiry) ─────────────────────────────────────────
+        let additionalProducts = [];
+
+        function parsePrice(str) {
+            return parseInt((str || '0').replace(/[^0-9]/g, '')) || 0;
+        }
+
+        function updateInquiryTotal() {
+            const mainPrice = parsePrice(currentProduct ? currentProduct.price : '0');
+            const extraTotal = additionalProducts.reduce((sum, p) => sum + parsePrice(p.price), 0);
+            const total = mainPrice + extraTotal;
+            const el = document.getElementById('inquiryTotalPrice');
+            if (el) {
+                if (total > 0) {
+                    el.textContent = total.toLocaleString('cs-CZ') + ' Kč';
+                } else {
+                    el.textContent = 'Dohodou';
+                }
+            }
+        }
+
+        function toggleAdditionalProduct(id) {
+            const idx = additionalProducts.findIndex(p => p.id === id);
+            if (idx === -1) {
+                const prod = allProducts.find(p => p.id === id);
+                if (prod) additionalProducts.push(prod);
+            } else {
+                additionalProducts.splice(idx, 1);
+            }
+            // Re-render list to update visual state
+            populateAdditionalProducts();
+            updateInquiryTotal();
+            updateHiddenAdditional();
+        }
+
+        function updateHiddenAdditional() {
+            const field = document.getElementById('hAdditional');
+            if (!field) return;
+            if (additionalProducts.length === 0) {
+                field.value = 'Žádné další produkty';
+            } else {
+                field.value = additionalProducts.map(p => `${p.title} (${p.price || 'Dohodou'})`).join(', ');
+            }
+        }
+
+        function populateAdditionalProducts() {
+            const section = document.getElementById('additionalProductsSection');
+            const list = document.getElementById('additionalProductsList');
+            if (!list || !currentProduct) return;
+
+            const others = allProducts.filter(p => p.id !== currentProduct.id).slice(0, 20);
+            if (others.length === 0) {
+                if (section) section.classList.add('hidden');
+                return;
+            }
+            if (section) section.classList.remove('hidden');
+
+            list.innerHTML = others.map(p => {
+                const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+                const isChecked = additionalProducts.some(a => a.id === p.id);
+                return `
+                <div data-extra-id="${escapeHtml(p.id)}"
+                     onclick="toggleAdditionalProduct('${escapeHtml(p.id)}')"
+                     class="flex items-center gap-3 p-2.5 rounded-xl border-2 cursor-pointer transition-all select-none ${isChecked ? 'checked border-black bg-gray-50' : 'border-gray-100 hover:border-gray-300'}">
+                    <img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}"
+                         class="w-10 h-10 object-contain rounded-lg bg-white flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold line-clamp-1">${escapeHtml(p.title)}</p>
+                        <p class="text-xs text-gray-500">${escapeHtml(p.price || 'Dohodou')}</p>
+                    </div>
+                    <span class="check-icon w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isChecked ? 'bg-black border-black' : 'border-gray-300'}">
+                        ${isChecked ? '<i class="fas fa-check text-white" style="font-size:9px"></i>' : ''}
+                    </span>
+                </div>`;
+            }).join('');
+        }
+
+        function updateSummary() {
+            const summaryList = document.getElementById('summaryList');
+            const summaryTotal = document.getElementById('summaryTotal');
+            if (!summaryList || !currentProduct) return;
+
+            const items = [currentProduct, ...additionalProducts];
+            let total = 0;
+            summaryList.innerHTML = items.map(p => {
+                const price = parsePrice(p.price);
+                if (price > 0) total += price;
+                return `<div class="flex justify-between items-start gap-2">
+                    <span class="text-gray-700 flex-1 line-clamp-1">${escapeHtml(p.title)}</span>
+                    <span class="font-semibold flex-shrink-0">${escapeHtml(p.price || 'Dohodou')}</span>
+                </div>`;
+            }).join('');
+
+            if (summaryTotal) {
+                summaryTotal.textContent = total > 0 ? total.toLocaleString('cs-CZ') + ' Kč' : 'Dohodou';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         // ── Modal ────────────────────────────────────────────────────────────────
         function openModal() {
+            additionalProducts = [];
             currentStep = 1;
             updateStepUI();
+            populateAdditionalProducts();
+            updateInquiryTotal();
+            updateHiddenAdditional();
             const modal = document.getElementById('inquiryModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -675,8 +852,16 @@
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             document.getElementById('inquiryForm').reset();
+            additionalProducts = [];
             currentStep = 1;
             updateStepUI();
+            // Reset company fields
+            const companyFields = document.getElementById('companyFields');
+            if (companyFields) {
+                companyFields.classList.add('hidden');
+                const arrow = document.getElementById('companyArrow');
+                if (arrow) arrow.style.transform = '';
+            }
         }
 
         function nextStep() {
@@ -687,7 +872,11 @@
                     if (!el.checkValidity()) { el.reportValidity(); return; }
                 }
             }
-            if (currentStep < 3) { currentStep++; updateStepUI(); }
+            if (currentStep < 3) {
+                currentStep++;
+                if (currentStep === 3) updateSummary();
+                updateStepUI();
+            }
         }
 
         function prevStep() {

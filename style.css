@@ -242,7 +242,47 @@ h1, h2, h3, h4 { line-height: 1.2; }
     100% { background-position: 200% 0; }
 }
 
-/* ── Filter buttons ─────────────────────────────────────────── */
+/* ── Filter dot (blinking green indicator) ──────────────────── */
+.filter-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+    animation: filter-dot-blink 1.8s ease-in-out infinite;
+}
+
+.filter-btn.disabled .filter-dot {
+    background: #9ca3af;
+    animation: none;
+}
+
+.filter-btn.active .filter-dot {
+    background: white;
+    opacity: 0.85;
+    animation: none;
+}
+
+@keyframes filter-dot-blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+/* ── Wishlist active state (product detail CTA) ─────────────── */
+.active-wishlist {
+    border-color: #ef4444 !important;
+    color: #ef4444;
+    background: #fff5f5;
+}
+
+/* ── Additional product item checked state ──────────────────── */
+#additionalProductsList [data-extra-id].checked {
+    border-color: #0a0a0a;
+    background: #f9f9f9;
+}
+
+/* ── Filter button ──────────────────────────────────────────── */
 .filter-btn {
     padding: 0.375rem 0.875rem;
     border: 2px solid #e5e7eb;
