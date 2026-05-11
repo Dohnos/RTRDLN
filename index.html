@@ -164,65 +164,91 @@
     <main class="pt-16">
 
         <!-- ===== HERO ===== -->
-        <section class="relative min-h-[600px] md:h-[700px] flex items-center">
-            <div class="absolute inset-0">
-                <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-10"></div>
+        <section class="relative min-h-[600px] md:min-h-[700px] flex items-center overflow-hidden bg-[#0a0a0a]">
+            <!-- Blurred background texture -->
+            <div class="absolute inset-0 opacity-25">
                 <img src="https://i.postimg.cc/rwQ95kyJ/4.png"
-                     alt="Retrodílna – vintage nábytek a retro design"
-                     class="w-full h-full object-cover object-center"
-                     loading="eager">
+                     alt=""
+                     class="w-full h-full object-cover object-center scale-110"
+                     style="filter: blur(18px);"
+                     loading="eager" aria-hidden="true">
             </div>
+            <!-- Directional gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-black/30 md:to-transparent"></div>
 
             <div class="relative container mx-auto px-4 z-20 py-20">
-                <div class="max-w-3xl mx-auto text-center text-white">
-                    <p class="text-sm font-semibold uppercase tracking-widest text-gray-300 mb-4">Vintage &amp; Retro Design</p>
-                    <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
-                        Vítejte<br>u nás
-                    </h1>
-                    <p class="text-xl md:text-2xl font-light text-gray-200 mb-10">
-                        Objevte kouzlo československého designu
-                    </p>
+                <div class="grid md:grid-cols-2 gap-10 items-center">
 
-                    <!-- Hero pills -->
-                    <div class="flex flex-wrap justify-center gap-3 mb-10">
-                        <a href="#jak-nakupovat"
-                           class="px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
-                            <i class="fas fa-question-circle mr-1.5"></i>Jak nakupovat
+                    <!-- Left: Text content -->
+                    <div class="text-white">
+                        <!-- Badge pill -->
+                        <span class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1.5 rounded-full text-sm text-gray-300 mb-6">
+                            ✨ Vintage &amp; Retro Design
+                        </span>
+                        <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+                            Vítejte<br>u nás
+                        </h1>
+                        <p class="text-xl md:text-2xl font-light text-gray-200 mb-8">
+                            Objevte kouzlo československého designu
+                        </p>
+
+                        <!-- Hero pills -->
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <a href="#jak-nakupovat"
+                               class="px-5 py-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
+                                <i class="fas fa-question-circle mr-1.5"></i>Jak nakupovat
+                            </a>
+                            <a href="#sluzby"
+                               class="px-5 py-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
+                                <i class="fas fa-tools mr-1.5"></i>Služby
+                            </a>
+                            <a href="#kontakt"
+                               class="px-5 py-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
+                                <i class="fas fa-envelope mr-1.5"></i>Kontakt
+                            </a>
+                        </div>
+
+                        <a href="#produkty"
+                           class="inline-flex items-center gap-2 bg-white text-black px-10 py-4 rounded-full font-extrabold text-base uppercase tracking-wider hover:bg-gray-100 transition-colors shadow-xl">
+                            Prohlédnout nabídku <i class="fas fa-arrow-right"></i>
                         </a>
-                        <a href="#sluzby"
-                           class="px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
-                            <i class="fas fa-tools mr-1.5"></i>Služby
-                        </a>
-                        <a href="#kontakt"
-                           class="px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
-                            <i class="fas fa-envelope mr-1.5"></i>Kontakt
-                        </a>
+
+                        <!-- Stats row -->
+                        <div class="mt-10 grid grid-cols-2 gap-3">
+                            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl py-4 px-3">
+                                <p class="text-2xl font-extrabold">🪑</p>
+                                <p class="text-sm mt-1 text-gray-200">Vintage nábytek</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl py-4 px-3">
+                                <p class="text-2xl font-extrabold">✨</p>
+                                <p class="text-sm mt-1 text-gray-200">Retro design</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl py-4 px-3">
+                                <p class="text-2xl font-extrabold">🛠️</p>
+                                <p class="text-sm mt-1 text-gray-200">Renovace</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl py-4 px-3">
+                                <p class="text-2xl font-extrabold">🚚</p>
+                                <p class="text-sm mt-1 text-gray-200">Doprava</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <a href="#produkty"
-                       class="inline-flex items-center gap-2 bg-white text-black px-10 py-4 rounded-full font-extrabold text-base uppercase tracking-wider hover:bg-gray-100 transition-colors shadow-xl">
-                        Prohlédnout nabídku <i class="fas fa-arrow-right"></i>
-                    </a>
-
-                    <!-- Stats row -->
-                    <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
-                            <p class="text-2xl font-extrabold">🪑</p>
-                            <p class="text-sm mt-1 text-gray-200">Vintage nábytek</p>
-                        </div>
-                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
-                            <p class="text-2xl font-extrabold">✨</p>
-                            <p class="text-sm mt-1 text-gray-200">Retro design</p>
-                        </div>
-                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
-                            <p class="text-2xl font-extrabold">🛠️</p>
-                            <p class="text-sm mt-1 text-gray-200">Renovace</p>
-                        </div>
-                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
-                            <p class="text-2xl font-extrabold">🚚</p>
-                            <p class="text-sm mt-1 text-gray-200">Doprava</p>
+                    <!-- Right: Featured image (desktop only) -->
+                    <div class="hidden md:flex items-center justify-center">
+                        <div class="relative">
+                            <!-- Soft glow halo -->
+                            <div class="absolute -inset-8 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+                            <!-- White-frosted frame -->
+                            <div class="relative bg-white/15 backdrop-blur-md border border-white/30 p-4 rounded-[2.5rem] shadow-2xl">
+                                <img src="https://i.postimg.cc/rwQ95kyJ/4.png"
+                                     alt="Retrodílna – vintage nábytek a retro design"
+                                     class="w-[360px] h-[360px] object-cover rounded-[2rem]"
+                                     loading="eager">
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
@@ -363,7 +389,7 @@
                         <div class="flex-none w-11 h-11 bg-black text-white rounded-full flex items-center justify-center font-extrabold text-lg shrink-0">1</div>
                         <div>
                             <h3 class="text-lg font-bold mb-1">Výběr produktu</h3>
-                            <p class="text-gray-600 text-sm">Vyberte si produkt z naší nabídky a klikněte na <strong>Mám zájem</strong>. Můžete si vybrat i více produktů najednou.</p>
+                            <p class="text-gray-600 text-sm">Vyberte si produkt z naší nabídky a klikněte na <strong>Omrknout</strong> pro zobrazení detailu. Zájem o produkt poté vyjádřete přímo na stránce produktu.</p>
                         </div>
                     </div>
                     <!-- Step 2 -->

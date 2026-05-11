@@ -69,6 +69,8 @@ h1, h2, h3, h4 { line-height: 1.2; }
     background: #f8f8f8;
     position: relative;
     overflow: hidden;
+    border-radius: 0.875rem;
+    margin: 0.5rem 0.5rem 0;
 }
 
 .product-image {

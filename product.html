@@ -760,6 +760,8 @@
             }
             localStorage.setItem('wishlist', JSON.stringify(wishlist));
             updateWishlistDetailBtn();
+            displayWishlistItems();
+            updateWishlistBadge();
             showNotification(adding ? 'Přidáno do wishlistu ❤️' : 'Odebráno z wishlistu');
         }
 
