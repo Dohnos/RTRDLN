@@ -26,12 +26,12 @@
     <meta name="twitter:image" content="https://www.retrodilna.cz/images/twitter-card.jpg">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
-    <link rel="shortcut icon" href="/favicon/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
+    <link rel="shortcut icon" href="favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-title" content="Retrodilna">
-    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="manifest" href="favicon/site.webmanifest">
 
     <!-- JSON-LD Organization -->
     <script type="application/ld+json">
@@ -107,12 +107,6 @@
 
             <!-- Right actions -->
             <div class="flex items-center gap-3">
-                <button id="wishlistToggleBtn"
-                        class="relative hidden md:flex items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors"
-                        onclick="toggleWishlistSection()">
-                    <i class="far fa-heart"></i>
-                    <span id="wishlistBadge" class="hidden text-xs bg-white text-black w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
-                </button>
                 <a href="#produkty"
                    class="hidden md:inline-flex items-center gap-2 bg-white text-black text-sm px-4 py-2 rounded-full font-bold hover:bg-gray-100 transition-colors">
                     Naše nabídka
@@ -141,6 +135,43 @@
             class="fixed bottom-6 right-6 bg-black text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer transform transition-all duration-300 opacity-0 translate-y-10 hover:bg-gray-800 z-50">
         <i class="fas fa-arrow-up text-sm"></i>
     </button>
+
+    <!-- Wishlist floating heart button (above scroll-to-top) -->
+    <button id="wishlistFloatBtn"
+            onclick="openWishlistModal()"
+            class="fixed bottom-20 right-6 bg-white text-gray-700 w-11 h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 border-2 border-gray-200 hover:border-black hover:bg-black hover:text-white z-50">
+        <i class="far fa-heart text-sm"></i>
+        <span id="wishlistBadge"
+              class="absolute -top-1.5 -right-1.5 hidden text-[10px] font-bold bg-black text-white w-5 h-5 rounded-full items-center justify-center leading-none">0</span>
+    </button>
+
+    <!-- Wishlist modal -->
+    <div id="wishlistModal"
+         class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4"
+         onclick="if(event.target===this)closeWishlistModal()">
+        <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <!-- Header -->
+            <div class="bg-[#0a0a0a] text-white px-6 py-4 flex items-center justify-between flex-shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fas fa-heart text-red-400"></i> Můj Wishlist
+                    </h3>
+                    <p class="text-gray-400 text-sm mt-0.5">
+                        <span id="wishlist-count">0</span> položek ·
+                        Celkem: <span id="wishlist-total">0 Kč</span>
+                    </p>
+                </div>
+                <button onclick="closeWishlistModal()"
+                        class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <!-- Content -->
+            <div class="overflow-y-auto flex-1 p-4">
+                <div id="wishlist-items" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
 
     <main class="pt-16">
 
@@ -205,26 +236,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- ===== WISHLIST (hidden by default) ===== -->
-        <section id="wishlistSection" class="py-12 bg-gray-50 hidden">
-            <div class="container mx-auto px-4">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 class="text-2xl font-bold">Můj Wishlist</h2>
-                        <p class="text-gray-500 text-sm mt-0.5">
-                            <span id="wishlist-count">0</span> položek ·
-                            Celkem: <span id="wishlist-total">0 Kč</span>
-                        </p>
-                    </div>
-                    <button onclick="toggleWishlistSection()"
-                            class="text-gray-400 hover:text-black transition-colors text-sm">
-                        <i class="fas fa-times mr-1"></i>Zavřít
-                    </button>
-                </div>
-                <div id="wishlist-items" class="space-y-3 max-w-2xl"></div>
             </div>
         </section>
 

@@ -25,12 +25,12 @@
     <meta name="twitter:image" id="twImage" content="">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
-    <link rel="shortcut icon" href="/favicon/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
+    <link rel="shortcut icon" href="favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-title" content="Retrodilna">
-    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="manifest" href="favicon/site.webmanifest">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -423,10 +423,35 @@
             return base;
         }
 
+        // ── Helper: slugify product title ────────────────────────────────────────
+        function slugify(text) {
+            return (text || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        // ── Helper: build pretty product URL ─────────────────────────────────────
+        function buildProductUrl(p) {
+            const base = window.location.pathname.replace(/\/product\.html$/, '').replace(/\/produkt\/.*$/, '');
+            return base + '/produkt/' + slugify(p.title) + '/' + p.id;
+        }
+
         // ── Load product ────────────────────────────────────────────────────────
         async function loadProduct() {
             const params = new URLSearchParams(window.location.search);
-            const productId = params.get('id');
+            let productId = params.get('id');
+
+            // Support pretty URL: /produkt/slug/id
+            if (!productId) {
+                const pathParts = window.location.pathname.split('/').filter(Boolean);
+                const produkt = pathParts.indexOf('produkt');
+                if (produkt !== -1 && pathParts.length > produkt + 1) {
+                    productId = pathParts[pathParts.length - 1];
+                }
+            }
 
             if (!productId) {
                 showError();
@@ -479,8 +504,14 @@
             const seoDesc = p.description
                 ? `${p.description.substring(0, 140)} — Retrodílna.cz`
                 : `${p.title} za ${p.price}. Vintage nábytek a retro design. Retrodílna.cz`;
+            const prettyUrl = buildProductUrl(p);
             const productUrl = `https://www.retrodilna.cz/product.html?id=${p.id}`;
             const mainImage = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+
+            // Update browser URL to pretty format
+            try {
+                history.replaceState(null, '', prettyUrl);
+            } catch (e) { console.warn('history.replaceState failed:', e); }
 
             document.getElementById('pageTitle').textContent = seoTitle;
             document.getElementById('metaDesc').setAttribute('content', seoDesc);
@@ -576,9 +607,9 @@
                 specsBlock.classList.add('hidden');
             }
 
-            // Share
+            // Share – use current URL (pretty URL after history.replaceState)
             document.getElementById('shareFb').href =
-                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`;
+                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
 
             // Related products
             renderRelated(p);
@@ -683,7 +714,6 @@
                 showNotification('Odkaz zkopírován!', 'success');
             });
         }
-
         // ── Notification ─────────────────────────────────────────────────────────
         function showNotification(msg, type = 'default') {
             const el = document.getElementById('notification');
@@ -708,8 +738,13 @@
             const d = Object.fromEntries(fd);
             const isCompany = !document.getElementById('companyFields').classList.contains('hidden');
 
+            const hideOverlay = () => {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            };
+
             try {
-                await emailjs.send('service_4xb9s3i', 'template_nuyzj2z', {
+                const sendPromise = emailjs.send('service_4xb9s3i', 'template_nuyzj2z', {
                     to_email: 'retrodilna@seznam.cz',
                     from_name: d.name,
                     from_email: d.email,
@@ -727,15 +762,19 @@
                     additional_products: d.additional_products || 'Žádné další produkty'
                 });
 
-                overlay.classList.add('hidden');
-                overlay.classList.remove('flex');
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Vypršel časový limit. Zkuste to znovu.')), 15000)
+                );
+
+                await Promise.race([sendPromise, timeoutPromise]);
+
+                hideOverlay();
                 closeModal();
                 showNotification('Poptávka byla úspěšně odeslána!', 'success');
             } catch (err) {
                 console.error(err);
-                overlay.classList.add('hidden');
-                overlay.classList.remove('flex');
-                showNotification('Chyba při odesílání. Zkuste to znovu.', 'error');
+                hideOverlay();
+                showNotification('Chyba při odesílání: ' + (err.text || err.message || 'Zkuste to znovu.'), 'error');
             }
         });
 

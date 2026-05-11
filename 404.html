@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přesměrovávám… | Retrodílna.cz</title>
+    <meta name="robots" content="noindex">
+    <script>
+        // GitHub Pages SPA routing: redirect /produkt/slug/id → product.html?id=id
+        (function () {
+            var path = window.location.pathname;
+            // Detect base (repo subfolder on GitHub Pages, e.g. /RTRDLN)
+            var base = path.match(/^(\/[^/]+)?\/produkt\//) ? RegExp.$1 || '' : '';
+            var parts = path.replace(base, '').split('/').filter(Boolean);
+
+            if (parts[0] === 'produkt' && parts.length >= 2) {
+                var id = parts[parts.length - 1];
+                window.location.replace(base + '/product.html?id=' + encodeURIComponent(id));
+            } else {
+                window.location.replace(base + '/index.html');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <p>Přesměrovávám…</p>
+</body>
+</html>
