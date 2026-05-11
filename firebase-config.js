@@ -1,6 +1,10 @@
 // ============================================================
 // Firebase konfigurace – vyplňte vlastní hodnoty z Firebase Console
 // https://console.firebase.google.com → váš projekt → Nastavení projektu → Webové aplikace
+//
+// BEZPEČNOST: Firebase API klíče pro webové aplikace jsou veřejné záměrně –
+// bezpečnost řídí Firestore Security Rules (firebase.google.com/docs/rules).
+// Nastavte Security Rules tak, aby omezovaly write operace jen na autentizované uživatele.
 // ============================================================
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",

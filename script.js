@@ -10,6 +10,24 @@ let categories = [];
 let currentStep = 1;
 let currentModalProduct = null;
 
+// ── Helper: get main product image ───────────────────────────────────────────
+function getProductMainImage(product) {
+    return (Array.isArray(product.images) && product.images.length)
+        ? product.images[0]
+        : (product.image || '');
+}
+
+// ── Helper: escape HTML to prevent XSS ───────────────────────────────────────
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // ── Firebase/JSON data loading ────────────────────────────────────────────────
 async function loadData() {
     let firebaseOk = false;
@@ -221,39 +239,63 @@ function renderProductsGrid(products) {
 
     const wishlist = getWishlist();
     grid.innerHTML = products.map(p => {
-        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+        const img = getProductMainImage(p);
         const inWishlist = wishlist.includes(p.id);
         return `
-        <a href="product.html?id=${p.id}" class="product-card group block">
+        <a href="product.html?id=${escapeHtml(p.id)}" class="product-card group block">
             <div class="product-image-container relative">
                 <button class="wishlist-btn ${inWishlist ? 'active' : ''}"
-                        data-product-id="${p.id}"
-                        onclick="event.preventDefault();toggleWishlist('${p.id}')">
+                        data-product-id="${escapeHtml(p.id)}"
+                        data-action="wishlist">
                     <i class="${inWishlist ? 'fas' : 'far'} fa-heart"></i>
                 </button>
                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
-                     data-src="${img}"
-                     alt="${p.title}"
+                     data-src="${escapeHtml(img)}"
+                     alt="${escapeHtml(p.title)}"
                      class="product-image lazy"
                      loading="lazy">
             </div>
             <div class="product-info">
-                <div class="product-title line-clamp-2">${p.title}</div>
-                <div class="product-price">${p.price || 'Dohodou'}</div>
-                ${p.location ? `<div class="product-location">${p.location}</div>` : ''}
+                <div class="product-title line-clamp-2">${escapeHtml(p.title)}</div>
+                <div class="product-price">${escapeHtml(p.price || 'Dohodou')}</div>
+                ${p.location ? `<div class="product-location">${escapeHtml(p.location)}</div>` : ''}
                 <div class="product-meta">
-                    ${p.category ? `<span class="product-tag"><i class="fas fa-tag"></i> ${p.category}</span>` : ''}
-                    ${p.designer ? `<span class="product-tag"><i class="fas fa-industry"></i> ${p.designer}</span>` : ''}
+                    ${p.category ? `<span class="product-tag"><i class="fas fa-tag"></i> ${escapeHtml(p.category)}</span>` : ''}
+                    ${p.designer ? `<span class="product-tag"><i class="fas fa-industry"></i> ${escapeHtml(p.designer)}</span>` : ''}
                 </div>
                 <button class="inquiry-btn"
-                        onclick="event.preventDefault();openInquiryModal(${JSON.stringify(p).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
+                        data-product-id="${escapeHtml(p.id)}"
+                        data-action="inquiry">
                     <i class="fas fa-envelope mr-1.5"></i>Mám zájem
                 </button>
             </div>
         </a>`;
     }).join('');
 
+    // Event delegation handled by persistent listener set up in DOMContentLoaded
     initLazyLoading();
+}
+
+// Event delegation handler for the products grid (single persistent listener)
+function handleGridClick(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const productId = btn.dataset.productId;
+    if (!productId) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const product = allProducts.find(p => p.id === productId);
+    if (!product) return;
+
+    if (action === 'wishlist') {
+        toggleWishlist(productId);
+    } else if (action === 'inquiry') {
+        openInquiryModal(product);
+    }
 }
 
 function initLazyLoading() {
@@ -341,22 +383,22 @@ async function displayWishlistItems() {
     }
 
     container.innerHTML = items.map(p => {
-        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+        const img = getProductMainImage(p);
         return `
-        <div class="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm">
-            <a href="product.html?id=${p.id}" class="shrink-0">
-                <img src="${img}" alt="${p.title}" class="w-16 h-16 object-contain rounded-xl bg-gray-50">
+        <div class="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm" data-wishlist-item="${escapeHtml(p.id)}">
+            <a href="product.html?id=${escapeHtml(p.id)}" class="shrink-0">
+                <img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" class="w-16 h-16 object-contain rounded-xl bg-gray-50">
             </a>
             <div class="flex-1 min-w-0">
-                <a href="product.html?id=${p.id}" class="font-semibold text-sm line-clamp-2 hover:underline">${p.title}</a>
-                <p class="text-gray-600 text-sm mt-0.5">${p.price || 'Dohodou'}</p>
+                <a href="product.html?id=${escapeHtml(p.id)}" class="font-semibold text-sm line-clamp-2 hover:underline">${escapeHtml(p.title)}</a>
+                <p class="text-gray-600 text-sm mt-0.5">${escapeHtml(p.price || 'Dohodou')}</p>
             </div>
             <div class="flex gap-2 shrink-0">
-                <button onclick="openInquiryModal(${JSON.stringify(p).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})"
+                <button data-action="wishlist-inquiry" data-product-id="${escapeHtml(p.id)}"
                         class="px-3 py-1.5 bg-black text-white rounded-full text-xs font-bold hover:bg-gray-800 transition-colors">
                     Zájem
                 </button>
-                <button onclick="toggleWishlist('${p.id}')"
+                <button data-action="wishlist-remove" data-product-id="${escapeHtml(p.id)}"
                         class="px-3 py-1.5 border-2 border-red-200 text-red-500 rounded-full text-xs font-bold hover:bg-red-50 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
@@ -371,7 +413,7 @@ function openInquiryModal(product) {
     currentStep = 1;
     updateModalStepUI();
 
-    const img = Array.isArray(product.images) && product.images.length ? product.images[0] : (product.image || '');
+    const img = getProductMainImage(product);
     document.getElementById('modalProductImage').src = img;
     document.getElementById('modalProductTitle').textContent = product.title;
     document.getElementById('modalProductPrice').textContent = product.price || 'Dohodou';
@@ -477,6 +519,27 @@ document.addEventListener('DOMContentLoaded', () => {
     loadData();
     setupScrollToTop();
     updateWishlistBadge();
+
+    // Single persistent event delegation for product grid
+    const grid = document.getElementById('productsGrid');
+    if (grid) grid.addEventListener('click', handleGridClick);
+
+    // Event delegation for wishlist section buttons
+    const wishlistItems = document.getElementById('wishlist-items');
+    if (wishlistItems) {
+        wishlistItems.addEventListener('click', e => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const productId = btn.dataset.productId;
+            if (!productId) return;
+            if (btn.dataset.action === 'wishlist-remove') {
+                toggleWishlist(productId);
+            } else if (btn.dataset.action === 'wishlist-inquiry') {
+                const product = allProducts.find(p => p.id === productId);
+                if (product) openInquiryModal(product);
+            }
+        });
+    }
 
     // Close modal on backdrop click
     const modal = document.getElementById('inquiryModal');

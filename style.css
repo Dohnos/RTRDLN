@@ -131,10 +131,9 @@ h1, h2, h3, h4 { line-height: 1.2; }
 }
 
 .product-location::before {
-    content: "\f3c5";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 0.6rem;
+    content: "📍";
+    font-size: 0.65rem;
+    line-height: 1;
 }
 
 .product-meta {

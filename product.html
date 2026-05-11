@@ -401,6 +401,28 @@
         let allProducts = [];
         let currentStep = 1;
 
+        // ── Helper: build Offer schema without fake price "0" ───────────────────
+        function buildOfferSchema(p) {
+            const priceStr = (p.price || '').replace(/[^0-9]/g, '');
+            const base = {
+                "@type": "Offer",
+                "availability": "https://schema.org/InStock",
+                "seller": { "@type": "Organization", "name": "Retrodílna.cz" }
+            };
+            if (priceStr) {
+                base.priceCurrency = "CZK";
+                base.price = priceStr;
+            } else {
+                // Price negotiable – use PriceSpecification without a fixed value
+                base.priceSpecification = {
+                    "@type": "PriceSpecification",
+                    "priceCurrency": "CZK",
+                    "description": "Cena dohodou"
+                };
+            }
+            return base;
+        }
+
         // ── Load product ────────────────────────────────────────────────────────
         async function loadProduct() {
             const params = new URLSearchParams(window.location.search);
@@ -478,13 +500,7 @@
                 "name": p.title,
                 "description": p.description || p.title,
                 "image": Array.isArray(p.images) ? p.images : (p.image ? [p.image] : []),
-                "offers": {
-                    "@type": "Offer",
-                    "priceCurrency": "CZK",
-                    "price": (p.price || '').replace(/[^0-9]/g, '') || "0",
-                    "availability": "https://schema.org/InStock",
-                    "seller": { "@type": "Organization", "name": "Retrodílna.cz" }
-                },
+                "offers": buildOfferSchema(p),
                 "brand": { "@type": "Brand", "name": p.designer || "Retrodílna" },
                 "category": p.category || ""
             };
