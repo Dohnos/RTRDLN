@@ -107,7 +107,8 @@ function setupCategoryFilters() {
     container.innerHTML = sorted.map(cat => {
         const count = counts[cat] || 0;
         const disabled = count === 0;
-        return `<button class="filter-btn category-btn ${disabled ? 'disabled' : ''}" 
+        const isActive = cat === currentCategory;
+        return `<button class="filter-btn category-btn ${disabled ? 'disabled' : ''} ${isActive ? 'active' : ''}" 
                         data-category="${cat}" 
                         ${disabled ? 'disabled' : ''}
                         onclick="selectCategory('${cat}')">
@@ -144,7 +145,8 @@ function setupDesignersList() {
     container.innerHTML = sorted.map(d => {
         const count = counts[d] || 0;
         const disabled = count === 0;
-        return `<button class="filter-btn designer-btn ${disabled ? 'disabled' : ''}"
+        const isActive = d === currentDesigner;
+        return `<button class="filter-btn designer-btn ${disabled ? 'disabled' : ''} ${isActive ? 'active' : ''}"
                         data-designer="${d}"
                         ${disabled ? 'disabled' : ''}
                         onclick="selectDesigner('${d}')">
@@ -262,8 +264,8 @@ function renderProductsGrid(products) {
                 <div class="product-price">${escapeHtml(p.price || 'Dohodou')}</div>
                 ${p.location ? `<div class="product-location">${escapeHtml(p.location)}</div>` : ''}
                 <div class="product-meta">
-                    ${p.category ? `<span class="product-tag"><i class="fas fa-tag"></i> ${escapeHtml(p.category)}</span>` : ''}
-                    ${p.designer ? `<span class="product-tag"><i class="fas fa-industry"></i> ${escapeHtml(p.designer)}</span>` : ''}
+                    ${p.category ? `<button type="button" class="product-tag" data-action="filter-category" data-filter-value="${escapeHtml(p.category)}"><i class="fas fa-tag"></i> ${escapeHtml(p.category)}</button>` : ''}
+                    ${p.designer ? `<button type="button" class="product-tag" data-action="filter-designer" data-filter-value="${escapeHtml(p.designer)}"><i class="fas fa-industry"></i> ${escapeHtml(p.designer)}</button>` : ''}
                 </div>
                 <button class="inquiry-btn"
                         data-product-id="${escapeHtml(p.id)}"
@@ -284,6 +286,23 @@ function handleGridClick(e) {
     if (!btn) return;
 
     const action = btn.dataset.action;
+
+    // Filter tag clicks – no productId needed
+    if (action === 'filter-category') {
+        e.preventDefault();
+        e.stopPropagation();
+        selectCategory(btn.dataset.filterValue);
+        document.getElementById('produkty')?.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+    if (action === 'filter-designer') {
+        e.preventDefault();
+        e.stopPropagation();
+        selectDesigner(btn.dataset.filterValue);
+        document.getElementById('produkty')?.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+
     const productId = btn.dataset.productId;
     if (!productId) return;
 
@@ -550,6 +569,13 @@ function showNotification(msg, type = 'default') {
 // ── DOMContentLoaded ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     emailjs.init("TJRmVM_YRqmfCKXKn");
+
+    // Apply pre-selected filter from URL params (e.g. coming from product.html badge)
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('category');
+    const desParam = urlParams.get('designer');
+    if (catParam) currentCategory = catParam;
+    if (desParam) currentDesigner = desParam;
 
     loadData();
     setupScrollToTop();

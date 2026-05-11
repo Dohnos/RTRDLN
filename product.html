@@ -223,6 +223,47 @@
         </div>
     </main>
 
+    <!-- Scroll to top button -->
+    <button id="scrollTopBtn"
+            class="fixed bottom-6 right-6 bg-black text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer transform transition-all duration-300 opacity-0 translate-y-10 hover:bg-gray-800 z-50">
+        <i class="fas fa-arrow-up text-sm"></i>
+    </button>
+
+    <!-- Wishlist floating heart button -->
+    <button id="wishlistFloatBtn"
+            onclick="openWishlistModal()"
+            class="fixed bottom-20 right-6 bg-white text-gray-700 w-11 h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 border-2 border-gray-200 hover:border-black hover:bg-black hover:text-white z-50">
+        <i class="far fa-heart text-sm"></i>
+        <span id="wishlistBadge"
+              class="absolute -top-1.5 -right-1.5 hidden text-[10px] font-bold bg-black text-white w-5 h-5 rounded-full items-center justify-center leading-none">0</span>
+    </button>
+
+    <!-- Wishlist modal -->
+    <div id="wishlistModal"
+         class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[60] p-4"
+         onclick="if(event.target===this)closeWishlistModal()">
+        <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="bg-[#0a0a0a] text-white px-6 py-4 flex items-center justify-between flex-shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fas fa-heart text-red-400"></i> Můj Wishlist
+                    </h3>
+                    <p class="text-gray-400 text-sm mt-0.5">
+                        <span id="wishlist-count">0</span> položek ·
+                        Celkem: <span id="wishlist-total">0 Kč</span>
+                    </p>
+                </div>
+                <button onclick="closeWishlistModal()"
+                        class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto flex-1 p-4">
+                <div id="wishlist-items" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== INQUIRY MODAL (multi-step) ===== -->
     <div id="inquiryModal"
          class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
@@ -588,18 +629,20 @@
                 `).join('');
             }
 
-            // Badges
+            // Badges (clickable: link to index.html with filter)
             const badges = document.getElementById('badgesRow');
             badges.innerHTML = '';
             if (p.category) {
-                badges.innerHTML += `<span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">
-                    <i class="fas fa-tag"></i> ${p.category}
-                </span>`;
+                badges.innerHTML += `<a href="index.html?category=${encodeURIComponent(p.category)}#produkty"
+                    class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold hover:bg-gray-200 transition-colors cursor-pointer">
+                    <i class="fas fa-tag"></i> ${escapeHtml(p.category)}
+                </a>`;
             }
             if (p.designer) {
-                badges.innerHTML += `<span class="inline-flex items-center gap-1.5 bg-black text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    <i class="fas fa-industry"></i> ${p.designer}
-                </span>`;
+                badges.innerHTML += `<a href="index.html?designer=${encodeURIComponent(p.designer)}#produkty"
+                    class="inline-flex items-center gap-1.5 bg-black text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer">
+                    <i class="fas fa-industry"></i> ${escapeHtml(p.designer)}
+                </a>`;
             }
 
             // Title, price, location
@@ -617,8 +660,8 @@
             const specs = [];
             if (p.condition) specs.push({ icon: 'fa-star', label: 'Stav', value: p.condition });
             if (p.dimensions) specs.push({ icon: 'fa-ruler', label: 'Rozměry', value: p.dimensions });
-            if (p.category) specs.push({ icon: 'fa-tag', label: 'Kategorie', value: p.category });
-            if (p.designer) specs.push({ icon: 'fa-industry', label: 'Výrobce', value: p.designer });
+            if (p.category) specs.push({ icon: 'fa-tag', label: 'Kategorie', value: p.category, link: 'index.html?category=' + encodeURIComponent(p.category) + '#produkty' });
+            if (p.designer) specs.push({ icon: 'fa-industry', label: 'Výrobce', value: p.designer, link: 'index.html?designer=' + encodeURIComponent(p.designer) + '#produkty' });
             if (p.location) specs.push({ icon: 'fa-map-marker-alt', label: 'Lokace', value: p.location });
 
             const specsBlock = document.getElementById('specsBlock');
@@ -630,7 +673,9 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400 font-medium">${s.label}</p>
-                            <p class="text-sm font-semibold text-gray-800">${s.value}</p>
+                            ${s.link
+                                ? `<a href="${s.link}" class="text-sm font-semibold text-gray-800 hover:text-black hover:underline">${escapeHtml(s.value)}</a>`
+                                : `<p class="text-sm font-semibold text-gray-800">${escapeHtml(s.value)}</p>`}
                         </div>
                     </div>
                 `).join('');
@@ -653,8 +698,10 @@
             document.getElementById('modalProductPrice').textContent = p.price || 'Dohodou';
             document.getElementById('modalProductImage').src = mainImage;
 
-            // Wishlist detail button state
+            // Wishlist detail button state + badge
             updateWishlistDetailBtn();
+            updateWishlistBadge();
+            displayWishlistItems();
         }
 
         function switchImage(src) {
@@ -724,6 +771,101 @@
             if (icon) {
                 icon.className = inWishlist ? 'fas fa-heart text-red-500 text-base' : 'far fa-heart text-base';
             }
+        }
+
+        // ── Wishlist modal (product page) ─────────────────────────────────────────
+        function openWishlistModal() {
+            const modal = document.getElementById('wishlistModal');
+            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        }
+
+        function closeWishlistModal() {
+            const modal = document.getElementById('wishlistModal');
+            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        }
+
+        function updateWishlistBadge() {
+            const count = getWishlist().length;
+            const badge = document.getElementById('wishlistBadge');
+            if (badge) {
+                badge.textContent = count;
+                if (count > 0) { badge.classList.remove('hidden'); badge.classList.add('flex'); }
+                else { badge.classList.add('hidden'); badge.classList.remove('flex'); }
+            }
+            const btn = document.getElementById('wishlistFloatBtn');
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = count > 0 ? 'fas fa-heart text-sm text-red-500' : 'far fa-heart text-sm';
+            }
+        }
+
+        function toggleWishlistProduct(productId) {
+            const wishlist = getWishlist();
+            const idx = wishlist.indexOf(productId);
+            const adding = idx === -1;
+            if (adding) wishlist.push(productId);
+            else wishlist.splice(idx, 1);
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            updateWishlistBadge();
+            updateWishlistDetailBtn();
+            displayWishlistItems();
+            showNotification(adding ? 'Přidáno do wishlistu ❤️' : 'Odebráno z wishlistu');
+        }
+
+        function displayWishlistItems() {
+            const wishlist = getWishlist();
+            const container = document.getElementById('wishlist-items');
+            const countEl = document.getElementById('wishlist-count');
+            const totalEl = document.getElementById('wishlist-total');
+            if (!container) return;
+
+            updateWishlistBadge();
+
+            if (wishlist.length === 0) {
+                container.innerHTML = `
+                <div class="text-center py-10 text-gray-400">
+                    <i class="far fa-heart text-4xl mb-3 block"></i>
+                    <p class="font-medium">Wishlist je prázdný</p>
+                    <p class="text-sm mt-1">Přidejte produkty pomocí srdíčka</p>
+                </div>`;
+                if (countEl) countEl.textContent = '0';
+                if (totalEl) totalEl.textContent = '0 Kč';
+                return;
+            }
+
+            const items = allProducts.filter(p => wishlist.includes(p.id));
+            if (countEl) countEl.textContent = items.length;
+            if (totalEl) {
+                const total = items.reduce((sum, p) => {
+                    const n = parseInt((p.price || '0').replace(/[^0-9]/g, '')) || 0;
+                    return sum + n;
+                }, 0);
+                totalEl.textContent = total.toLocaleString('cs-CZ') + ' Kč';
+            }
+
+            container.innerHTML = items.map(p => {
+                const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+                return `
+                <div class="flex items-center gap-4 bg-gray-50 rounded-2xl p-4" data-wishlist-item="${escapeHtml(p.id)}">
+                    <a href="product.html?id=${escapeHtml(p.id)}" class="shrink-0">
+                        <img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" class="w-16 h-16 object-contain rounded-xl bg-white">
+                    </a>
+                    <div class="flex-1 min-w-0">
+                        <a href="product.html?id=${escapeHtml(p.id)}" class="font-semibold text-sm line-clamp-2 hover:underline">${escapeHtml(p.title)}</a>
+                        <p class="text-gray-600 text-sm mt-0.5">${escapeHtml(p.price || 'Dohodou')}</p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button data-wl-action="inquiry" data-wl-id="${escapeHtml(p.id)}"
+                                class="px-3 py-1.5 bg-black text-white rounded-full text-xs font-bold hover:bg-gray-800 transition-colors flex items-center gap-1.5">
+                            <i class="fas fa-heart text-red-400"></i> Mám zájem
+                        </button>
+                        <button data-wl-action="remove" data-wl-id="${escapeHtml(p.id)}"
+                                class="px-3 py-1.5 border-2 border-red-200 text-red-500 rounded-full text-xs font-bold hover:bg-red-50 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         // ── Additional products (inquiry) ─────────────────────────────────────────
@@ -835,13 +977,27 @@
         }
 
         // ── Modal ────────────────────────────────────────────────────────────────
-        function openModal() {
+        function openModal(product) {
+            if (product) {
+                // Optionally open for a different product (e.g. from wishlist)
+                currentProduct = product;
+                const img = Array.isArray(product.images) && product.images.length ? product.images[0] : (product.image || '');
+                document.getElementById('hProductTitle').value = product.title;
+                document.getElementById('hProductPrice').value = product.price || '';
+                document.getElementById('hProductUrl').value = `https://www.retrodilna.cz/produkt/${slugify(product.title)}/${product.id}`;
+                document.getElementById('modalProductTitle').textContent = product.title;
+                document.getElementById('modalProductPrice').textContent = product.price || 'Dohodou';
+                document.getElementById('modalProductImage').src = img;
+            }
             additionalProducts = [];
             currentStep = 1;
             updateStepUI();
             populateAdditionalProducts();
             updateInquiryTotal();
             updateHiddenAdditional();
+            // Always reset overlay when opening
+            const overlay = document.querySelector('#inquiryForm .loading-overlay');
+            if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
             const modal = document.getElementById('inquiryModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -851,6 +1007,9 @@
             const modal = document.getElementById('inquiryModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            // Always reset loading overlay
+            const overlay = document.querySelector('#inquiryForm .loading-overlay');
+            if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
             document.getElementById('inquiryForm').reset();
             additionalProducts = [];
             currentStep = 1;
@@ -971,6 +1130,42 @@
         document.getElementById('inquiryModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
+
+        // Wishlist modal – event delegation for buttons
+        const wishlistItems = document.getElementById('wishlist-items');
+        if (wishlistItems) {
+            wishlistItems.addEventListener('click', e => {
+                const btn = e.target.closest('[data-wl-action]');
+                if (!btn) return;
+                const productId = btn.dataset.wlId;
+                if (!productId) return;
+                if (btn.dataset.wlAction === 'remove') {
+                    toggleWishlistProduct(productId);
+                } else if (btn.dataset.wlAction === 'inquiry') {
+                    const product = allProducts.find(p => p.id === productId);
+                    if (product) {
+                        closeWishlistModal();
+                        openModal(product);
+                    }
+                }
+            });
+        }
+
+        // Scroll to top button
+        (function() {
+            const btn = document.getElementById('scrollTopBtn');
+            if (!btn) return;
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    btn.classList.remove('opacity-0', 'translate-y-10');
+                    btn.classList.add('opacity-100', 'translate-y-0');
+                } else {
+                    btn.classList.add('opacity-0', 'translate-y-10');
+                    btn.classList.remove('opacity-100', 'translate-y-0');
+                }
+            });
+            btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        })();
 
         // ── Init ─────────────────────────────────────────────────────────────────
         loadProduct();
