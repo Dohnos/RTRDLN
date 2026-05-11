@@ -269,8 +269,8 @@ function renderProductsGrid(products) {
                 </div>
                 <button class="inquiry-btn"
                         data-product-id="${escapeHtml(p.id)}"
-                        data-action="inquiry">
-                    <i class="fas fa-envelope mr-1.5"></i>Mám zájem
+                        data-action="detail">
+                    <i class="fas fa-eye mr-1.5"></i>Omrknout
                 </button>
             </div>
         </a>`;
@@ -314,8 +314,8 @@ function handleGridClick(e) {
 
     if (action === 'wishlist') {
         toggleWishlist(productId);
-    } else if (action === 'inquiry') {
-        openInquiryModal(product);
+    } else if (action === 'detail') {
+        window.location.href = `product.html?id=${encodeURIComponent(product.id)}`;
     }
 }
 
