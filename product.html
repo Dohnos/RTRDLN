@@ -269,7 +269,7 @@
     <!-- ===== IMAGE LIGHTBOX MODAL ===== -->
     <div id="imageLightbox"
          class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-[70] p-4"
-         onclick="if(event.target===this||event.target.id==='imageLightbox')closeImageLightbox()">
+         onclick="handleLightboxBackdropClick(event)">
         <button onclick="closeImageLightbox()"
                 class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center transition-colors text-white z-10">
             <i class="fas fa-times"></i>
@@ -1106,13 +1106,20 @@
 
         function closeImageLightbox() {
             const modal = document.getElementById('imageLightbox');
+            if (!modal || modal.classList.contains('hidden')) return;
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             document.body.style.overflow = '';
         }
 
-        // Close lightbox on Escape key
-        document.addEventListener('keydown', e => {
+        function handleLightboxBackdropClick(event) {
+            if (event.target === event.currentTarget || event.target.id === 'imageLightbox') {
+                closeImageLightbox();
+            }
+        }
+
+        // Close lightbox on Escape key (uses named handler to avoid duplicate listeners)
+        document.addEventListener('keydown', function handleLightboxEscape(e) {
             if (e.key === 'Escape') {
                 closeImageLightbox();
             }
