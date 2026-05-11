@@ -264,8 +264,8 @@ function renderProductsGrid(products) {
                 <div class="product-price">${escapeHtml(p.price || 'Dohodou')}</div>
                 ${p.location ? `<div class="product-location">${escapeHtml(p.location)}</div>` : ''}
                 <div class="product-meta">
-                    ${p.category ? `<button type="button" class="product-tag" data-action="filter-category" data-filter-value="${escapeHtml(p.category)}"><i class="fas fa-tag"></i> ${escapeHtml(p.category)}</button>` : ''}
-                    ${p.designer ? `<button type="button" class="product-tag" data-action="filter-designer" data-filter-value="${escapeHtml(p.designer)}"><i class="fas fa-industry"></i> ${escapeHtml(p.designer)}</button>` : ''}
+                    ${p.category ? `<button type="button" class="product-tag" data-action="filter-category" data-filter-value="${escapeHtml(p.category)}" aria-label="Filtrovat podle kategorie: ${escapeHtml(p.category)}"><i class="fas fa-tag"></i> ${escapeHtml(p.category)}</button>` : ''}
+                    ${p.designer ? `<button type="button" class="product-tag" data-action="filter-designer" data-filter-value="${escapeHtml(p.designer)}" aria-label="Filtrovat podle výrobce: ${escapeHtml(p.designer)}"><i class="fas fa-industry"></i> ${escapeHtml(p.designer)}</button>` : ''}
                 </div>
                 <button class="inquiry-btn"
                         data-product-id="${escapeHtml(p.id)}"

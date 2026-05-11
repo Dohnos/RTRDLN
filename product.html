@@ -224,7 +224,7 @@
     </main>
 
     <!-- Scroll to top button -->
-    <button id="scrollTopBtn"
+    <button id="scrollTopBtn" aria-label="Scroll to top"
             class="fixed bottom-6 right-6 bg-black text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer transform transition-all duration-300 opacity-0 translate-y-10 hover:bg-gray-800 z-50">
         <i class="fas fa-arrow-up text-sm"></i>
     </button>
@@ -232,6 +232,7 @@
     <!-- Wishlist floating heart button -->
     <button id="wishlistFloatBtn"
             onclick="openWishlistModal()"
+            aria-label="Otevřít wishlist"
             class="fixed bottom-20 right-6 bg-white text-gray-700 w-11 h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 border-2 border-gray-200 hover:border-black hover:bg-black hover:text-white z-50">
         <i class="far fa-heart text-sm"></i>
         <span id="wishlistBadge"
@@ -634,12 +635,14 @@
             badges.innerHTML = '';
             if (p.category) {
                 badges.innerHTML += `<a href="index.html?category=${encodeURIComponent(p.category)}#produkty"
+                    aria-label="Filtrovat podle kategorie: ${escapeHtml(p.category)}"
                     class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold hover:bg-gray-200 transition-colors cursor-pointer">
                     <i class="fas fa-tag"></i> ${escapeHtml(p.category)}
                 </a>`;
             }
             if (p.designer) {
                 badges.innerHTML += `<a href="index.html?designer=${encodeURIComponent(p.designer)}#produkty"
+                    aria-label="Filtrovat podle výrobce: ${escapeHtml(p.designer)}"
                     class="inline-flex items-center gap-1.5 bg-black text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer">
                     <i class="fas fa-industry"></i> ${escapeHtml(p.designer)}
                 </a>`;
