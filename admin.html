@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Retrodílna.cz</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <!-- Cloudinary Upload Widget -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Exo 2', 'sans-serif'] },
+                    borderRadius: { '2xl': '1rem', '3xl': '1.5rem', '4xl': '2rem' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .admin-input {
+            @apply w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors;
+        }
+        .admin-label {
+            @apply block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f3f4f6;
+            flex-shrink: 0;
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .image-preview-item .remove-btn {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div id="loginScreen"
+         class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-lg p-8 w-full max-w-sm">
+            <div class="text-center mb-6">
+                <p class="text-2xl font-extrabold">RETRODÍLNA</p>
+                <p class="text-gray-400 text-sm mt-1">Admin panel</p>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="admin-label">Heslo</label>
+                    <input type="password" id="adminPassword"
+                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                           placeholder="Zadejte heslo"
+                           onkeydown="if(event.key==='Enter')login()">
+                </div>
+                <p id="loginError" class="text-red-500 text-xs hidden">Nesprávné heslo.</p>
+                <button onclick="login()"
+                        class="w-full bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">
+                    Přihlásit se
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN PANEL (hidden until logged in) ===== -->
+    <div id="adminPanel" class="hidden min-h-screen">
+
+        <!-- Header -->
+        <header class="bg-[#0a0a0a] text-white px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+            <div>
+                <p class="font-bold text-lg">RETRODÍLNA<span class="text-gray-500">.CZ</span></p>
+                <p class="text-gray-400 text-xs">Admin panel</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" target="_blank"
+                   class="text-sm bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
+                    <i class="fas fa-external-link-alt mr-1"></i> Web
+                </a>
+                <button onclick="logout()"
+                        class="text-sm text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="max-w-6xl mx-auto px-4 py-8">
+
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-8">
+                <button onclick="showTab('products')" data-tab="products"
+                        class="tab-btn px-5 py-2.5 rounded-full text-sm font-semibold bg-black text-white">
+                    <i class="fas fa-box mr-2"></i>Produkty
+                </button>
+                <button onclick="showTab('add')" data-tab="add"
+                        class="tab-btn px-5 py-2.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Přidat produkt
+                </button>
+                <button onclick="showTab('settings')" data-tab="settings"
+                        class="tab-btn px-5 py-2.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-cog mr-2"></i>Nastavení
+                </button>
+            </div>
+
+            <!-- ===== TAB: Products list ===== -->
+            <div id="tab-products">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold">Všechny produkty</h2>
+                    <button onclick="loadProductsList()"
+                            class="text-sm text-gray-500 hover:text-black transition-colors">
+                        <i class="fas fa-sync-alt mr-1"></i> Obnovit
+                    </button>
+                </div>
+                <div id="productsList" class="space-y-3">
+                    <div class="text-center py-12 text-gray-400">
+                        <div class="w-8 h-8 border-4 border-gray-200 border-t-gray-500 rounded-full animate-spin mx-auto mb-3"></div>
+                        Načítám…
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: Add product ===== -->
+            <div id="tab-add" class="hidden">
+                <h2 class="text-xl font-bold mb-6" id="formTitle">Přidat produkt</h2>
+                <input type="hidden" id="editProductId">
+
+                <div class="grid lg:grid-cols-3 gap-6">
+
+                    <!-- LEFT: Images -->
+                    <div class="lg:col-span-1 space-y-4">
+                        <div class="bg-white rounded-3xl p-5 shadow-sm">
+                            <h3 class="font-bold text-sm mb-4">Fotografie</h3>
+
+                            <!-- Preview strip -->
+                            <div id="imagePreviewStrip" class="flex flex-wrap gap-2 mb-4 min-h-[80px]">
+                                <div class="w-20 h-20 rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 text-xs text-center" id="noImagesPlaceholder">
+                                    <div><i class="fas fa-image text-2xl mb-1 block"></i>Žádné</div>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="openCloudinaryWidget()"
+                                    class="w-full border-2 border-dashed border-gray-300 hover:border-black text-gray-500 hover:text-black rounded-2xl py-4 text-sm font-semibold transition-colors">
+                                <i class="fas fa-cloud-upload-alt mr-2 text-lg"></i> Nahrát fotky
+                            </button>
+                            <p class="text-xs text-gray-400 mt-2 text-center">Nahrávejte přes Cloudinary. Podporováno JPG, PNG, WEBP.</p>
+
+                            <!-- Cloudinary URL list (hidden, used to track uploaded images) -->
+                            <div id="uploadedImages" class="hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Form -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+                            <h3 class="font-bold text-sm mb-2">Základní informace</h3>
+
+                            <div>
+                                <label class="admin-label">Název *</label>
+                                <input type="text" id="fTitle"
+                                       class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                       placeholder="NÁZEV | VÝROBCE">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="admin-label">Cena *</label>
+                                    <input type="text" id="fPrice"
+                                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                           placeholder="3 500 Kč">
+                                </div>
+                                <div>
+                                    <label class="admin-label">Lokalita</label>
+                                    <input type="text" id="fLocation"
+                                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                           placeholder="Olomouc">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="admin-label">Popis</label>
+                                <textarea id="fDescription" rows="4"
+                                          class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors resize-none"
+                                          placeholder="Podrobný popis produktu, stav, zajímavosti…"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+                            <h3 class="font-bold text-sm mb-2">Klasifikace</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="admin-label">Kategorie</label>
+                                    <select id="fCategory"
+                                            class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors bg-white">
+                                        <option value="">– vyberte –</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="admin-label">Designer / Výrobce</label>
+                                    <select id="fDesigner"
+                                            class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors bg-white">
+                                        <option value="">– vyberte –</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="admin-label">Stav</label>
+                                    <select id="fCondition"
+                                            class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors bg-white">
+                                        <option value="">– vyberte –</option>
+                                        <option>Výborný</option>
+                                        <option>Velmi dobrý</option>
+                                        <option>Dobrý</option>
+                                        <option>Po renovaci</option>
+                                        <option>Nutná renovace</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="admin-label">Rozměry</label>
+                                    <input type="text" id="fDimensions"
+                                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                           placeholder="Š 60 × H 45 × V 80 cm">
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <label class="admin-label mb-0">Aktivní (zobrazit na webu)</label>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="fActive" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="button" onclick="resetForm()"
+                                    class="flex-none border-2 border-gray-200 text-gray-500 px-5 py-3 rounded-full font-semibold hover:border-black hover:text-black transition-colors">
+                                Zrušit
+                            </button>
+                            <button type="button" onclick="saveProduct()"
+                                    id="saveBtn"
+                                    class="flex-1 bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-save"></i> <span id="saveBtnText">Uložit produkt</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: Settings ===== -->
+            <div id="tab-settings" class="hidden">
+                <h2 class="text-xl font-bold mb-6">Nastavení kategorií a designérů</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+
+                    <!-- Categories -->
+                    <div class="bg-white rounded-3xl p-5 shadow-sm">
+                        <h3 class="font-bold mb-4">Kategorie</h3>
+                        <div id="categoriesList" class="space-y-2 mb-4 max-h-60 overflow-y-auto"></div>
+                        <div class="flex gap-2">
+                            <input type="text" id="newCategoryInput"
+                                   class="flex-1 border-2 border-gray-200 rounded-2xl px-4 py-2 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="Nová kategorie"
+                                   onkeydown="if(event.key==='Enter')addCategory()">
+                            <button onclick="addCategory()"
+                                    class="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Designers -->
+                    <div class="bg-white rounded-3xl p-5 shadow-sm">
+                        <h3 class="font-bold mb-4">Designéři / Výrobci</h3>
+                        <div id="designersList" class="space-y-2 mb-4 max-h-60 overflow-y-auto"></div>
+                        <div class="flex gap-2">
+                            <input type="text" id="newDesignerInput"
+                                   class="flex-1 border-2 border-gray-200 rounded-2xl px-4 py-2 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="Nový designér"
+                                   onkeydown="if(event.key==='Enter')addDesigner()">
+                            <button onclick="addDesigner()"
+                                    class="bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Migration from products.json -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm mt-6">
+                    <h3 class="font-bold mb-2">Import dat z products.json</h3>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Jednorázový import produktů, kategorií a designérů ze stávajícího souboru do Firebase.
+                        <strong>Spusťte pouze jednou.</strong>
+                    </p>
+                    <button onclick="importFromJson()"
+                            class="bg-gray-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-black transition-colors">
+                        <i class="fas fa-file-import mr-2"></i> Importovat products.json
+                    </button>
+                    <div id="importStatus" class="mt-3 text-sm hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-5 right-5 z-[9999] hidden">
+        <div class="bg-black text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm font-medium">
+            <i id="notifIcon" class="fas fa-check-circle"></i>
+            <span id="notifText"></span>
+        </div>
+    </div>
+
+    <script>
+        // ── CONFIG ────────────────────────────────────────────────────────────────
+        // Cloudinary – vyplňte vlastní cloud name a unsigned upload preset
+        const CLOUDINARY_CLOUD = 'YOUR_CLOUD_NAME';
+        const CLOUDINARY_PRESET = 'YOUR_UPLOAD_PRESET'; // unsigned preset
+
+        // Admin heslo – změňte na vlastní silné heslo.
+        // BEZPEČNOSTNÍ POZNÁMKA: Pro produkci implementujte Firebase Authentication
+        // (firebase.google.com/docs/auth) místo tohoto jednoduchého hesla.
+        const ADMIN_PASSWORD = 'retrodilna2025';
+
+        // ── STATE ─────────────────────────────────────────────────────────────────
+        let uploadedImageUrls = [];
+        let categories = [];
+        let designers = [];
+
+        // ── AUTH ──────────────────────────────────────────────────────────────────
+        function login() {
+            const pw = document.getElementById('adminPassword').value;
+            if (pw === ADMIN_PASSWORD) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                initAdmin();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        // ── INIT ──────────────────────────────────────────────────────────────────
+        async function initAdmin() {
+            await Promise.all([loadCategories(), loadDesigners()]);
+            loadProductsList();
+            // Single persistent event delegation for products list
+            const container = document.getElementById('productsList');
+            if (container) {
+                container.addEventListener('click', async e => {
+                    const btn = e.target.closest('[data-action]');
+                    if (!btn) return;
+                    const id = btn.dataset.id;
+                    if (!id) return;
+                    if (btn.dataset.action === 'edit') {
+                        editProduct(id);
+                    } else if (btn.dataset.action === 'delete') {
+                        const docSnap = await db.collection('products').doc(id).get();
+                        const title = docSnap.exists ? (docSnap.data().title || '') : '';
+                        deleteProduct(id, title);
+                    }
+                });
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const snap = await db.collection('categories').orderBy('name').get();
+                if (!snap.empty) {
+                    categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                } else {
+                    // Fallback: load from products.json
+                    const res = await fetch('products.json');
+                    const data = await res.json();
+                    categories = (data.categories || []).map(name => ({ name }));
+                }
+            } catch {
+                const res = await fetch('products.json').catch(() => null);
+                if (res) {
+                    const data = await res.json();
+                    categories = (data.categories || []).map(name => ({ name }));
+                }
+            }
+            populateCategorySelects();
+            renderCategoriesList();
+        }
+
+        async function loadDesigners() {
+            try {
+                const snap = await db.collection('designers').orderBy('name').get();
+                if (!snap.empty) {
+                    designers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                } else {
+                    const res = await fetch('products.json');
+                    const data = await res.json();
+                    designers = (data.designers || []).map(name => ({ name }));
+                }
+            } catch {
+                const res = await fetch('products.json').catch(() => null);
+                if (res) {
+                    const data = await res.json();
+                    designers = (data.designers || []).map(name => ({ name }));
+                }
+            }
+            populateDesignerSelects();
+            renderDesignersList();
+        }
+
+        function populateCategorySelects() {
+            const sel = document.getElementById('fCategory');
+            const current = sel.value;
+            sel.innerHTML = '<option value="">– vyberte –</option>' +
+                categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            sel.value = current;
+        }
+
+        function populateDesignerSelects() {
+            const sel = document.getElementById('fDesigner');
+            const current = sel.value;
+            sel.innerHTML = '<option value="">– vyberte –</option>' +
+                designers.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
+            sel.value = current;
+        }
+
+        // ── PRODUCTS LIST ─────────────────────────────────────────────────────────
+        async function loadProductsList() {
+            const container = document.getElementById('productsList');
+            container.innerHTML = '<div class="text-center py-12 text-gray-400"><div class="w-8 h-8 border-4 border-gray-200 border-t-gray-500 rounded-full animate-spin mx-auto mb-3"></div>Načítám…</div>';
+
+            try {
+                const snap = await db.collection('products').orderBy('createdAt', 'desc').get();
+                if (snap.empty) {
+                    container.innerHTML = '<div class="text-center py-12 text-gray-400">Žádné produkty. Přidejte první produkt.</div>';
+                    return;
+                }
+
+                container.innerHTML = snap.docs.map(doc => {
+                    const p = doc.data();
+                    const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+                    return `
+                        <div class="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm">
+                            <div class="w-16 h-16 rounded-xl bg-gray-50 flex-shrink-0 overflow-hidden">
+                                ${img ? `<img src="${img}" alt="" class="w-full h-full object-contain">` : '<i class="fas fa-image text-gray-300 text-2xl w-full h-full flex items-center justify-center"></i>'}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-sm truncate">${p.title || 'Bez názvu'}</p>
+                                <p class="text-gray-500 text-xs">${p.price || '–'} · ${p.category || '–'}</p>
+                                <span class="inline-flex items-center gap-1 mt-1 text-xs ${p.active ? 'text-green-600' : 'text-red-500'}">
+                                    <i class="fas ${p.active ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                                    ${p.active ? 'Aktivní' : 'Neaktivní'}
+                                </span>
+                            </div>
+                            <div class="flex gap-2 flex-shrink-0">
+                                <a href="product.html?id=${doc.id}" target="_blank"
+                                   class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors text-xs">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button data-action="edit" data-id="${doc.id}"
+                                        class="w-8 h-8 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center text-gray-600 transition-colors text-xs">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button data-action="delete" data-id="${doc.id}"
+                                        class="w-8 h-8 rounded-full bg-gray-100 hover:bg-red-500 hover:text-white flex items-center justify-center text-gray-500 transition-colors text-xs">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                container.innerHTML = `<div class="text-center py-8 text-red-400">Chyba při načítání: ${e.message}</div>`;
+            }
+        }
+
+        // ── SAVE PRODUCT ──────────────────────────────────────────────────────────
+        async function saveProduct() {
+            const title = document.getElementById('fTitle').value.trim();
+            if (!title) { showNotification('Zadejte název produktu', 'error'); return; }
+            if (uploadedImageUrls.length === 0) {
+                const confirmed = confirm('Nemáte nahranou žádnou fotku. Chcete pokračovat bez fotek?');
+                if (!confirmed) return;
+            }
+
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            document.getElementById('saveBtnText').textContent = 'Ukládám…';
+
+            const editId = document.getElementById('editProductId').value;
+
+            const productData = {
+                title,
+                price: document.getElementById('fPrice').value.trim(),
+                location: document.getElementById('fLocation').value.trim(),
+                description: document.getElementById('fDescription').value.trim(),
+                category: document.getElementById('fCategory').value,
+                designer: document.getElementById('fDesigner').value,
+                condition: document.getElementById('fCondition').value,
+                dimensions: document.getElementById('fDimensions').value.trim(),
+                active: document.getElementById('fActive').checked,
+                images: uploadedImageUrls,
+                image: uploadedImageUrls[0] || '',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                if (editId) {
+                    await db.collection('products').doc(editId).update(productData);
+                    showNotification('Produkt byl upraven', 'success');
+                } else {
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('products').add(productData);
+                    showNotification('Produkt byl přidán', 'success');
+                }
+                resetForm();
+                showTab('products');
+                loadProductsList();
+            } catch (e) {
+                showNotification('Chyba: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                document.getElementById('saveBtnText').textContent = 'Uložit produkt';
+            }
+        }
+
+        async function editProduct(id) {
+            try {
+                const doc = await db.collection('products').doc(id).get();
+                if (!doc.exists) return;
+                const p = doc.data();
+
+                document.getElementById('editProductId').value = id;
+                document.getElementById('formTitle').textContent = 'Upravit produkt';
+                document.getElementById('saveBtnText').textContent = 'Uložit změny';
+                document.getElementById('fTitle').value = p.title || '';
+                document.getElementById('fPrice').value = p.price || '';
+                document.getElementById('fLocation').value = p.location || '';
+                document.getElementById('fDescription').value = p.description || '';
+                document.getElementById('fCategory').value = p.category || '';
+                document.getElementById('fDesigner').value = p.designer || '';
+                document.getElementById('fCondition').value = p.condition || '';
+                document.getElementById('fDimensions').value = p.dimensions || '';
+                document.getElementById('fActive').checked = p.active !== false;
+
+                uploadedImageUrls = Array.isArray(p.images) ? [...p.images] : (p.image ? [p.image] : []);
+                renderImagePreviews();
+
+                showTab('add');
+            } catch (e) {
+                showNotification('Chyba při načítání produktu', 'error');
+            }
+        }
+
+        async function deleteProduct(id, title) {
+            if (!confirm(`Opravdu smazat produkt "${title}"?`)) return;
+            try {
+                await db.collection('products').doc(id).delete();
+                showNotification('Produkt byl smazán', 'success');
+                loadProductsList();
+            } catch (e) {
+                showNotification('Chyba: ' + e.message, 'error');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('editProductId').value = '';
+            document.getElementById('formTitle').textContent = 'Přidat produkt';
+            document.getElementById('saveBtnText').textContent = 'Uložit produkt';
+            ['fTitle','fPrice','fLocation','fDescription','fDimensions'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('fCategory').value = '';
+            document.getElementById('fDesigner').value = '';
+            document.getElementById('fCondition').value = '';
+            document.getElementById('fActive').checked = true;
+            uploadedImageUrls = [];
+            renderImagePreviews();
+        }
+
+        // ── CLOUDINARY ────────────────────────────────────────────────────────────
+        function openCloudinaryWidget() {
+            if (CLOUDINARY_CLOUD === 'YOUR_CLOUD_NAME') {
+                showNotification('Nejprve nastavte CLOUDINARY_CLOUD a CLOUDINARY_PRESET v admin.html', 'error');
+                return;
+            }
+            const widget = cloudinary.createUploadWidget({
+                cloudName: CLOUDINARY_CLOUD,
+                uploadPreset: CLOUDINARY_PRESET,
+                multiple: true,
+                maxFiles: 10,
+                sources: ['local', 'camera'],
+                clientAllowedFormats: ['image'],
+                maxImageWidth: 1600,
+                maxImageHeight: 1600,
+                cropping: false,
+                folder: 'retrodilna/products',
+                language: 'cs',
+                text: {
+                    cs: {
+                        or: 'nebo',
+                        menu: { files: 'Soubory z počítače', camera: 'Fotoaparát' },
+                        selection_counter: { file: 'Soubor', files: 'Soubory' },
+                        drop_files_here_or: 'Přetáhněte soubory sem nebo',
+                        click_here: 'klikněte sem',
+                        upload: 'Nahrát'
+                    }
+                }
+            }, (error, result) => {
+                if (!error && result.event === 'success') {
+                    uploadedImageUrls.push(result.info.secure_url);
+                    renderImagePreviews();
+                }
+            });
+            widget.open();
+        }
+
+        function renderImagePreviews() {
+            const strip = document.getElementById('imagePreviewStrip');
+            const placeholder = document.getElementById('noImagesPlaceholder');
+
+            if (uploadedImageUrls.length === 0) {
+                strip.innerHTML = '';
+                strip.appendChild(placeholder);
+                return;
+            }
+
+            placeholder.remove();
+            strip.innerHTML = uploadedImageUrls.map((url, i) => `
+                <div class="image-preview-item">
+                    <img src="${url}" alt="">
+                    <button class="remove-btn" onclick="removeImage(${i})" type="button">
+                        <i class="fas fa-times" style="font-size:8px"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeImage(index) {
+            uploadedImageUrls.splice(index, 1);
+            renderImagePreviews();
+        }
+
+        // ── SETTINGS: Categories ──────────────────────────────────────────────────
+        async function addCategory() {
+            const name = document.getElementById('newCategoryInput').value.trim();
+            if (!name) return;
+            try {
+                await db.collection('categories').add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                document.getElementById('newCategoryInput').value = '';
+                await loadCategories();
+                showNotification('Kategorie přidána', 'success');
+            } catch (e) {
+                showNotification('Chyba: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Smazat kategorii?')) return;
+            await db.collection('categories').doc(id).delete();
+            await loadCategories();
+        }
+
+        function renderCategoriesList() {
+            const container = document.getElementById('categoriesList');
+            if (!container) return;
+            container.innerHTML = categories.map(c => `
+                <div class="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2 text-sm">
+                    <span>${c.name}</span>
+                    ${c.id ? `<button onclick="deleteCategory('${c.id}')" class="text-red-400 hover:text-red-600 transition-colors text-xs"><i class="fas fa-times"></i></button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // ── SETTINGS: Designers ───────────────────────────────────────────────────
+        async function addDesigner() {
+            const name = document.getElementById('newDesignerInput').value.trim();
+            if (!name) return;
+            try {
+                await db.collection('designers').add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                document.getElementById('newDesignerInput').value = '';
+                await loadDesigners();
+                showNotification('Designér přidán', 'success');
+            } catch (e) {
+                showNotification('Chyba: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteDesigner(id) {
+            if (!confirm('Smazat designéra?')) return;
+            await db.collection('designers').doc(id).delete();
+            await loadDesigners();
+        }
+
+        function renderDesignersList() {
+            const container = document.getElementById('designersList');
+            if (!container) return;
+            container.innerHTML = designers.map(d => `
+                <div class="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2 text-sm">
+                    <span>${d.name}</span>
+                    ${d.id ? `<button onclick="deleteDesigner('${d.id}')" class="text-red-400 hover:text-red-600 transition-colors text-xs"><i class="fas fa-times"></i></button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // ── IMPORT FROM products.json ─────────────────────────────────────────────
+        async function importFromJson() {
+            const status = document.getElementById('importStatus');
+            status.classList.remove('hidden');
+            status.className = 'mt-3 text-sm text-blue-600';
+            status.textContent = 'Načítám products.json…';
+
+            try {
+                const res = await fetch('products.json');
+                const data = await res.json();
+
+                // Import categories
+                status.textContent = 'Importuji kategorie…';
+                for (const name of (data.categories || [])) {
+                    const exists = await db.collection('categories').where('name','==',name).limit(1).get();
+                    if (exists.empty) {
+                        await db.collection('categories').add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    }
+                }
+
+                // Import designers
+                status.textContent = 'Importuji designéry…';
+                for (const name of (data.designers || [])) {
+                    const exists = await db.collection('designers').where('name','==',name).limit(1).get();
+                    if (exists.empty) {
+                        await db.collection('designers').add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    }
+                }
+
+                // Import products
+                status.textContent = 'Importuji produkty…';
+                let count = 0;
+                for (const p of (data.products || [])) {
+                    const exists = await db.collection('products').doc(p.id).get();
+                    if (!exists.exists) {
+                        await db.collection('products').doc(p.id).set({
+                            title: p.title || '',
+                            price: p.price || '',
+                            location: p.location || '',
+                            image: p.image || '',
+                            images: p.image ? [p.image] : [],
+                            category: p.category || '',
+                            designer: p.designer || '',
+                            description: '',
+                            condition: '',
+                            dimensions: '',
+                            active: true,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        count++;
+                    }
+                }
+
+                status.className = 'mt-3 text-sm text-green-600 font-medium';
+                status.textContent = `✓ Import dokončen. Přidáno ${count} produktů.`;
+                await Promise.all([loadCategories(), loadDesigners()]);
+                loadProductsList();
+            } catch (e) {
+                status.className = 'mt-3 text-sm text-red-500';
+                status.textContent = 'Chyba při importu: ' + e.message;
+            }
+        }
+
+        // ── TABS ──────────────────────────────────────────────────────────────────
+        function showTab(name) {
+            ['products','add','settings'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name);
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const active = btn.dataset.tab === name;
+                btn.classList.toggle('bg-black', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('bg-gray-100', !active);
+                btn.classList.toggle('text-gray-600', !active);
+            });
+        }
+
+        // ── NOTIFICATION ──────────────────────────────────────────────────────────
+        function showNotification(msg, type = 'default') {
+            const el = document.getElementById('notification');
+            document.getElementById('notifIcon').className =
+                type === 'success' ? 'fas fa-check-circle text-green-400' :
+                type === 'error'   ? 'fas fa-exclamation-circle text-red-400' :
+                                     'fas fa-info-circle';
+            document.getElementById('notifText').textContent = msg;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3500);
+        }
+    </script>
+</body>
+</html>

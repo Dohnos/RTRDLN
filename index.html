@@ -3,571 +3,475 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- SEO Meta Tags -->
-    <title>Retrodílna.cz - Vintage nábytek a retro design | Prodej a renovace</title>
+    <title>Retrodílna.cz – Vintage nábytek a retro design | Prodej a renovace</title>
     <meta name="description" content="Objevte kouzlo československého designu. Nabízíme vintage nábytek, retro kousky a profesionální renovace. ✓ Kvalita ✓ Originalita ✓ 10 let zkušeností">
     <meta name="keywords" content="retro nábytek, vintage, československý design, renovace nábytku, retro design, starožitnosti, retrodilna">
-    
-    <!-- Favicon -->
-<link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
-<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
-<link rel="shortcut icon" href="/favicon/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
-<meta name="apple-mobile-web-app-title" content="Retrodilna" />
-<link rel="manifest" href="/favicon/site.webmanifest" />
-    
-    <!-- Open Graph / Facebook -->
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.retrodilna.cz/">
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.retrodilna.cz/">
-    <meta property="og:title" content="Retrodílna.cz - Vintage nábytek a retro design">
+    <meta property="og:title" content="Retrodílna.cz – Vintage nábytek a retro design">
     <meta property="og:description" content="Objevte kouzlo československého designu. Prodej a renovace retro nábytku.">
     <meta property="og:image" content="https://www.retrodilna.cz/images/og-image.jpg">
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://www.retrodilna.cz/">
-    <meta property="twitter:title" content="Retrodílna.cz - Vintage nábytek a retro design">
-    <meta property="twitter:description" content="Objevte kouzlo československého designu. Prodej a renovace retro nábytku.">
-    <meta property="twitter:image" content="https://www.retrodilna.cz/images/twitter-card.jpg">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.retrodilna.cz/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.retrodilna.cz/">
+    <meta name="twitter:title" content="Retrodílna.cz – Vintage nábytek a retro design">
+    <meta name="twitter:description" content="Objevte kouzlo československého designu. Prodej a renovace retro nábytku.">
+    <meta name="twitter:image" content="https://www.retrodilna.cz/images/twitter-card.jpg">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="Retrodilna">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <!-- JSON-LD Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "Retrodílna.cz",
+        "url": "https://www.retrodilna.cz",
+        "description": "Prodej a renovace vintage nábytku a retro designových kousků.",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Zvole 39",
+            "addressLocality": "Zvole",
+            "postalCode": "789 01",
+            "addressCountry": "CZ"
+        },
+        "telephone": "+420603538440",
+        "email": "retrodilna@seznam.cz",
+        "openingHoursSpecification": [
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "17:00" },
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "12:00" }
+        ],
+        "sameAs": ["https://www.facebook.com","https://www.instagram.com"]
+    }
+    </script>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
     <link rel="stylesheet" href="style.css">
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#000000',
-                        secondary: '#ffffff',
-                        accent: '#818cf8'
-                    },
-                    fontFamily: {
-                        sans: ['Exo 2', 'sans-serif']
-                    }
+                    colors: { primary: '#0a0a0a', secondary: '#fafafa' },
+                    fontFamily: { sans: ['Exo 2', 'sans-serif'] },
+                    borderRadius: { '2xl': '1rem', '3xl': '1.5rem', '4xl': '2rem' }
                 }
             }
         }
     </script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
-<body class="bg-white">
-    <header class="bg-black text-white shadow-lg fixed w-full z-50">
-        <div class="container mx-auto px-4 py-3">
-            <div class="text-2xl font-bold">RETRODILNA.CZ</div>
+<body class="bg-[#fafafa] font-sans">
+
+    <!-- ===== HEADER ===== -->
+    <header class="bg-[#0a0a0a] text-white fixed w-full z-50 shadow-md" id="mainHeader">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center gap-2 shrink-0">
+                <span class="text-xl font-extrabold tracking-tight">RETRODÍLNA<span class="text-gray-400">.CZ</span></span>
+            </a>
+
+            <!-- Desktop nav -->
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <a href="#produkty" class="hover:text-gray-300 transition-colors">Produkty</a>
+                <a href="#sluzby" class="hover:text-gray-300 transition-colors">Služby</a>
+                <a href="#jak-nakupovat" class="hover:text-gray-300 transition-colors">Jak nakupovat</a>
+                <a href="#kontakt" class="hover:text-gray-300 transition-colors">Kontakt</a>
+            </nav>
+
+            <!-- Right actions -->
+            <div class="flex items-center gap-3">
+                <button id="wishlistToggleBtn"
+                        class="relative hidden md:flex items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors"
+                        onclick="toggleWishlistSection()">
+                    <i class="far fa-heart"></i>
+                    <span id="wishlistBadge" class="hidden text-xs bg-white text-black w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                </button>
+                <a href="#produkty"
+                   class="hidden md:inline-flex items-center gap-2 bg-white text-black text-sm px-4 py-2 rounded-full font-bold hover:bg-gray-100 transition-colors">
+                    Naše nabídka
+                </a>
+                <!-- Mobile hamburger -->
+                <button id="mobileMenuBtn"
+                        class="md:hidden w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                        onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-sm"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-[#111] border-t border-white/10">
+            <nav class="container mx-auto px-4 py-4 flex flex-col gap-3 text-sm font-medium">
+                <a href="#produkty" onclick="toggleMobileMenu()" class="py-2 hover:text-gray-300 transition-colors">Produkty</a>
+                <a href="#sluzby" onclick="toggleMobileMenu()" class="py-2 hover:text-gray-300 transition-colors">Služby</a>
+                <a href="#jak-nakupovat" onclick="toggleMobileMenu()" class="py-2 hover:text-gray-300 transition-colors">Jak nakupovat</a>
+                <a href="#kontakt" onclick="toggleMobileMenu()" class="py-2 hover:text-gray-300 transition-colors">Kontakt</a>
+            </nav>
         </div>
     </header>
 
+    <!-- Scroll to top button -->
+    <button id="scrollTopBtn"
+            class="fixed bottom-6 right-6 bg-black text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg cursor-pointer transform transition-all duration-300 opacity-0 translate-y-10 hover:bg-gray-800 z-50">
+        <i class="fas fa-arrow-up text-sm"></i>
+    </button>
+
     <main class="pt-16">
-        <!-- Hero Section -->
-        <section class="relative h-[700px] flex items-center"> <!-- Changed height to allow for more vertical space -->
-            <!-- Background image with overlay -->
+
+        <!-- ===== HERO ===== -->
+        <section class="relative min-h-[600px] md:h-[700px] flex items-center">
             <div class="absolute inset-0">
-                <div class="absolute inset-0 bg-black opacity-60 z-10"></div>
-                <img src="https://i.postimg.cc/rwQ95kyJ/4.png" 
-                     alt="Retrodílna pozadí" 
+                <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-10"></div>
+                <img src="https://i.postimg.cc/rwQ95kyJ/4.png"
+                     alt="Retrodílna – vintage nábytek a retro design"
                      class="w-full h-full object-cover object-center"
                      loading="eager">
             </div>
 
-            <!-- Content -->
             <div class="relative container mx-auto px-4 z-20 py-20">
-                <div class="max-w-3xl mx-auto text-center text-white space-y-8"> <!-- Added space-y-8 for vertical spacing -->
-                    <div class="transform hover:scale-105 transition-transform duration-300">
-                        <h1 class="text-5xl md:text-7xl font-bold mt-4 leading-tight"> <!-- Increased top margin -->
-                            Vítejte u nás
-                        </h1>
-                    </div>
-
-                    <p class="text-xl md:text-2xl font-light">
+                <div class="max-w-3xl mx-auto text-center text-white">
+                    <p class="text-sm font-semibold uppercase tracking-widest text-gray-300 mb-4">Vintage &amp; Retro Design</p>
+                    <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+                        Vítejte<br>u nás
+                    </h1>
+                    <p class="text-xl md:text-2xl font-light text-gray-200 mb-10">
                         Objevte kouzlo československého designu
                     </p>
-                    
-                    <!-- Navigation Links -->
-                    <div class="flex flex-wrap justify-center gap-4 my-12"> <!-- Added vertical margin -->
-                        <a href="#jak-nakupovat" 
-                           class="w-full sm:w-auto px-6 py-2 bg-black/30 backdrop-blur-sm rounded-full text-white 
-                                  hover:bg-black/50 transition-all duration-300 text-sm uppercase tracking-wider">
-                            Jak nakupovat
+
+                    <!-- Hero pills -->
+                    <div class="flex flex-wrap justify-center gap-3 mb-10">
+                        <a href="#jak-nakupovat"
+                           class="px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
+                            <i class="fas fa-question-circle mr-1.5"></i>Jak nakupovat
                         </a>
-                        <a href="#sluzby" 
-                           class="w-full sm:w-auto px-6 py-2 bg-black/30 backdrop-blur-sm rounded-full text-white 
-                                  hover:bg-black/50 transition-all duration-300 text-sm uppercase tracking-wider">
-                            Služby
+                        <a href="#sluzby"
+                           class="px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
+                            <i class="fas fa-tools mr-1.5"></i>Služby
                         </a>
-                        <a href="#kontakt" 
-                           class="w-full sm:w-auto px-6 py-2 bg-black/30 backdrop-blur-sm rounded-full text-white 
-                                  hover:bg-black/50 transition-all duration-300 text-sm uppercase tracking-wider">
-                            Kontakt
+                        <a href="#kontakt"
+                           class="px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
+                            <i class="fas fa-envelope mr-1.5"></i>Kontakt
                         </a>
                     </div>
 
-                    <div class="flex justify-center mt-12"> <!-- Added flex and justify-center -->
-                        <a href="#produkty" 
-                           class="inline-block bg-white text-black px-12 py-4 rounded-full 
-                                  font-bold tracking-wider uppercase hover:bg-gray-100 
-                                  transition duration-300 transform hover:-translate-y-1 
-                                  hover:shadow-xl">
-                            Prohlédnout nabídku
-                        </a>
-                    </div>
-                    
-                    <div class="bg-black/30 backdrop-blur-sm p-6 rounded-2xl inline-block mx-auto"> <!-- Added mx-auto -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-center sm:text-left"> <!-- Changed to center on mobile -->
-                            <div class="space-y-4">
-                                <p class="flex items-center justify-center sm:justify-start space-x-3 text-lg">
-                                    <span class="text-2xl">🪑</span>
-                                    <span>Vintage nábytek</span>
-                                </p>
-                                <p class="flex items-center justify-center sm:justify-start space-x-3 text-lg">
-                                    <span class="text-2xl">✨</span>
-                                    <span>Retro design</span>
-                                </p>
-                            </div>
-                            <div class="space-y-4">
-                                <p class="flex items-center justify-center sm:justify-start space-x-3 text-lg">
-                                    <span class="text-2xl">🛠️</span>
-                                    <span>Renovace</span>
-                                </p>
-                                <p class="flex items-center justify-center sm:justify-start space-x-3 text-lg">
-                                    <span class="text-2xl">🚚</span>
-                                    <span>Doprava</span>
-                                </p>
-                            </div>
+                    <a href="#produkty"
+                       class="inline-flex items-center gap-2 bg-white text-black px-10 py-4 rounded-full font-extrabold text-base uppercase tracking-wider hover:bg-gray-100 transition-colors shadow-xl">
+                        Prohlédnout nabídku <i class="fas fa-arrow-right"></i>
+                    </a>
+
+                    <!-- Stats row -->
+                    <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
+                            <p class="text-2xl font-extrabold">🪑</p>
+                            <p class="text-sm mt-1 text-gray-200">Vintage nábytek</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
+                            <p class="text-2xl font-extrabold">✨</p>
+                            <p class="text-sm mt-1 text-gray-200">Retro design</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
+                            <p class="text-2xl font-extrabold">🛠️</p>
+                            <p class="text-sm mt-1 text-gray-200">Renovace</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl py-4 px-3">
+                            <p class="text-2xl font-extrabold">🚚</p>
+                            <p class="text-sm mt-1 text-gray-200">Doprava</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        
-        <!-- Scroll to top button - updated -->
-        <button id="scrollTopBtn" 
-                class="fixed bottom-8 right-8 bg-black text-white w-12 h-12 rounded-full 
-                       flex items-center justify-center shadow-lg cursor-pointer 
-                       transform transition-all duration-300 opacity-0 translate-y-10 hover:bg-gray-800
-                       z-50 group">
-            <i class="fas fa-arrow-up group-hover:animate-bounce"></i>
-        </button>
 
-        <!-- Wishlist Section -->
-        <section id="wishlist" class="py-16 bg-gray-50 hidden">
+        <!-- ===== WISHLIST (hidden by default) ===== -->
+        <section id="wishlistSection" class="py-12 bg-gray-50 hidden">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-4">Můj Wishlist</h2>
-                <div class="wishlist-summary text-center mb-8">
-                    <p class="text-lg">Počet položek: <span id="wishlist-count">0</span></p>
-                    <p class="text-lg">Celková cena: <span id="wishlist-total">0 Kč</span></p>
-                </div>
-                <div id="wishlist-items" class="grid grid-cols-1 gap-4 max-w-2xl mx-auto"></div>
-            </div>
-        </section>
-
-        <!-- Products Section -->
-        <section id="produkty" class="py-16 bg-white">
-            <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-12">Naše produkty</h2>
-                
-                <!-- Add this new filters section -->
-                <div class="mb-8">
-                    <button id="toggleFilters" class="md:hidden w-full py-2 px-4 bg-black text-white rounded-lg mb-4">
-                        Zobrazit filtry
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold">Můj Wishlist</h2>
+                        <p class="text-gray-500 text-sm mt-0.5">
+                            <span id="wishlist-count">0</span> položek ·
+                            Celkem: <span id="wishlist-total">0 Kč</span>
+                        </p>
+                    </div>
+                    <button onclick="toggleWishlistSection()"
+                            class="text-gray-400 hover:text-black transition-colors text-sm">
+                        <i class="fas fa-times mr-1"></i>Zavřít
                     </button>
-                    
-                    <div id="filtersContainer" class="hidden md:block">
+                </div>
+                <div id="wishlist-items" class="space-y-3 max-w-2xl"></div>
+            </div>
+        </section>
+
+        <!-- ===== PRODUCTS ===== -->
+        <section id="produkty" class="py-14 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Naše produkty</h2>
+                    <p class="text-gray-500">Pečlivě vybraný vintage nábytek a designové kousky</p>
+                </div>
+
+                <!-- Filters toggle (mobile) -->
+                <button id="toggleFilters"
+                        class="md:hidden w-full flex items-center justify-between bg-gray-100 rounded-2xl px-5 py-3 mb-4 font-semibold text-sm">
+                    <span><i class="fas fa-sliders-h mr-2"></i>Filtry</span>
+                    <i class="fas fa-chevron-down" id="filterArrow"></i>
+                </button>
+
+                <!-- Filters container -->
+                <div id="filtersContainer" class="hidden md:block mb-8">
+                    <div class="bg-gray-50 rounded-3xl p-5 space-y-5">
                         <!-- Categories -->
-                        <div class="mb-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="font-bold">KATEGORIE</h3>
-                                <button class="text-sm text-gray-600 hover:text-black flex items-center gap-1" onclick="resetFilters()">
-                                    <i class="fas fa-undo-alt"></i> Reset filtrů
-                                </button>
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                <button class="filter-btn category-btn uppercase" data-category="Židle">
-                                    Židle
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Křesla / gauče">
-                                    Křesla / gauče
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Lavice / lavičky">
-                                    Lavice / lavičky
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Komody / skříně">
-                                    Komody / skříně
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Stoly / stolky">
-                                    Stoly / stolky
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Osvětlení">
-                                    Osvětlení
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Zrcadla">
-                                    Zrcadla
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Doplňky">
-                                    Doplňky
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Industriální design">
-                                    Industriální design
-                                </button>
-                                <button class="filter-btn category-btn uppercase" data-category="Po renovaci">
-                                    Po renovaci
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Designers/Manufacturers -->
-                        <div class="mb-6">
-                            <h3 class="font-bold mb-2">DESIGNER / VÝROBCE</h3>
-                            <input type="text" id="designerSearch" placeholder="Hledat designéra..." 
-                                   class="w-full p-2 border rounded-lg mb-2">
-                            <div class="flex flex-wrap gap-2 max-h-48 overflow-y-auto" id="designersList">
-                                <!-- Designer buttons will be added dynamically -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="products-grid"></div>
-            </div>
-        </section>
-
-        <!-- Services Section -->
-        <section id="sluzby" class="py-16 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-4">Naše služby</h2>
-                <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">
-                    Poskytujeme kompletní servis od výběru nábytku až po jeho umístění u vás doma
-                </p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Vyhledávání -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="bg-black w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-search text-2xl text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-3">Vyhledávání</h3>
-                        <ul class="space-y-2 text-gray-600">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Hledání specifických kusů
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Ověření původu a stavu
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Expertní konzultace
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Renovace -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="bg-black w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-tools text-2xl text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-3">Renovace</h3>
-                        <ul class="space-y-2 text-gray-600">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Kompletní renovace
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Čalounění na míru
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Zachování původního charakteru
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Doprava -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="bg-black w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-truck text-2xl text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-3">Doprava</h3>
-                        <ul class="space-y-2 text-gray-600">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Bezpečná doprava po celé ČR
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Vynáška do patra
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Osobní odběr možný
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Servis -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="bg-black w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-star text-2xl text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-3">Servis</h3>
-                        <ul class="space-y-2 text-gray-600">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Poradenství zdarma
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Záruční servis
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-green-500 mr-2"></i>
-                                Pozáruční údržba
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Additional Info -->
-                <div class="mt-12 bg-white p-8 rounded-lg shadow-md max-w-3xl mx-auto">
-                    <h3 class="text-xl font-bold mb-4 text-center">Proč zvolit naše služby?</h3>
-                    <div class="grid md:grid-cols-2 gap-6">
                         <div>
-                            <h4 class="font-bold mb-2 flex items-center">
-                                <i class="fas fa-shield-alt mr-2 text-black"></i>
-                                Garance kvality
-                            </h4>
-                            <p class="text-gray-600 text-sm">
-                                Všechny produkty procházejí důkladnou kontrolou a renovací
-                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Kategorie</h3>
+                                <button onclick="resetFilters()" class="text-xs text-gray-400 hover:text-black flex items-center gap-1 transition-colors">
+                                    <i class="fas fa-undo-alt"></i> Reset
+                                </button>
+                            </div>
+                            <div class="flex flex-wrap gap-2" id="categoriesContainer">
+                                <!-- Filled dynamically -->
+                            </div>
                         </div>
+
+                        <!-- Designers -->
                         <div>
-                            <h4 class="font-bold mb-2 flex items-center">
-                                <i class="fas fa-history mr-2 text-black"></i>
-                                Dlouholeté zkušenosti
-                            </h4>
-                            <p class="text-gray-600 text-sm">
-                                Více než 10 let v oblasti renovace retro nábytku
-                            </p>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Designer / Výrobce</h3>
+                            <div class="relative mb-2">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <input type="text" id="designerSearch" placeholder="Hledat designéra…"
+                                       class="w-full pl-8 pr-4 py-2 border-2 border-gray-200 rounded-2xl text-sm focus:border-black focus:outline-none transition-colors bg-white">
+                            </div>
+                            <div class="flex flex-wrap gap-2 max-h-44 overflow-y-auto" id="designersList">
+                                <!-- Filled dynamically -->
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Products grid -->
+                <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <!-- Skeleton loaders -->
+                    <div class="product-skeleton"></div>
+                    <div class="product-skeleton"></div>
+                    <div class="product-skeleton"></div>
+                    <div class="product-skeleton"></div>
+                </div>
+
+                <!-- Load more -->
+                <div class="text-center mt-10 hidden" id="loadMoreContainer">
+                    <button id="loadMoreBtn" onclick="loadMoreProducts()"
+                            class="inline-flex items-center gap-2 border-2 border-black text-black px-8 py-3 rounded-full font-bold hover:bg-black hover:text-white transition-colors">
+                        Načíst více <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SERVICES ===== -->
+        <section id="sluzby" class="py-14 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Naše služby</h2>
+                    <p class="text-gray-500 max-w-xl mx-auto">Kompletní servis od výběru nábytku až po jeho umístění u vás doma</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-search text-xl text-white"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3">Vyhledávání</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Hledání specifických kusů</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Ověření původu a stavu</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Expertní konzultace</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-tools text-xl text-white"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3">Renovace</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Kompletní renovace</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Čalounění na míru</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Zachování charakteru</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-truck text-xl text-white"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3">Doprava</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Bezpečná doprava po ČR</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Vynáška do patra</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Osobní odběr možný</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-star text-xl text-white"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3">Servis</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Poradenství zdarma</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Záruční servis</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500 text-xs"></i>Pozáruční údržba</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Add this section before Contact Section -->
-        <section id="jak-nakupovat" class="py-16 bg-white">
+        <!-- ===== HOW TO BUY ===== -->
+        <section id="jak-nakupovat" class="py-14 bg-white">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-4">Jak nakupovat?</h2>
-                <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">
-                    Jednoduchý průvodce procesem nákupu od výběru až po dodání
-                </p>
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Jak nakupovat?</h2>
+                    <p class="text-gray-500 max-w-xl mx-auto">Jednoduchý průvodce od výběru až po dodání</p>
+                </div>
 
-                <div class="max-w-5xl mx-auto">
-                    <!-- Timeline -->
-                    <div class="space-y-8">
-                        <!-- Step 1 -->
-                        <div class="flex items-start gap-8">
-                            <div class="flex-none">
-                                <div class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold">
-                                    1
-                                </div>
-                            </div>
-                            <div class="flex-1 bg-gray-50 p-6 rounded-2xl shadow-sm">
-                                <h3 class="text-xl font-bold mb-3">Výběr produktu</h3>
-                                <p class="text-gray-600 mb-4">Vyberte si produkt z naší nabídky a klikněte na tlačítko "Mám zájem"</p>
-                                <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                    <div class="flex items-center gap-4">
-                                        <i class="fas fa-lightbulb text-2xl text-yellow-500"></i>
-                                        <p class="text-sm text-gray-600">Můžete si vybrat i více produktů najednou a spojit je do jedné objednávky</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 2 -->
-                        <div class="flex items-start gap-8">
-                            <div class="flex-none">
-                                <div class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold">
-                                    2
-                                </div>
-                            </div>
-                            <div class="flex-1 bg-gray-50 p-6 rounded-2xl shadow-sm">
-                                <h3 class="text-xl font-bold mb-3">Vyplnění formuláře</h3>
-                                <p class="text-gray-600 mb-4">Vyplňte kontaktní údaje a případné poznámky k objednávce</p>
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <h4 class="font-bold mb-2 flex items-center gap-2">
-                                            <i class="fas fa-user text-black"></i>
-                                            Osobní údaje
-                                        </h4>
-                                        <p class="text-sm text-gray-600">Jméno, kontakt a dodací adresa</p>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <h4 class="font-bold mb-2 flex items-center gap-2">
-                                            <i class="fas fa-building text-black"></i>
-                                            Firemní údaje
-                                        </h4>
-                                        <p class="text-sm text-gray-600">Volitelně IČO a fakturační údaje</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 3 -->
-                        <div class="flex items-start gap-8">
-                            <div class="flex-none">
-                                <div class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold">
-                                    3
-                                </div>
-                            </div>
-                            <div class="flex-1 bg-gray-50 p-6 rounded-2xl shadow-sm">
-                                <h3 class="text-xl font-bold mb-3">Potvrzení objednávky</h3>
-                                <p class="text-gray-600 mb-4">Obratem vás kontaktujeme s potvrzením a detaily platby</p>
-                                <div class="grid md:grid-cols-3 gap-4">
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <div class="flex flex-col items-center">
-                                            <i class="fas fa-qrcode text-3xl text-black mb-2"></i>
-                                            <p class="text-sm text-center">Zašleme QR kód pro rychlou platbu</p>
-                                        </div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <div class="flex flex-col items-center">
-                                            <i class="fas fa-truck text-3xl text-black mb-2"></i>
-                                            <p class="text-sm text-center">Domluvíme způsob dopravy</p>
-                                        </div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <div class="flex flex-col items-center">
-                                            <i class="fas fa-calendar-alt text-3xl text-black mb-2"></i>
-                                            <p class="text-sm text-center">Stanovíme termín dodání</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 4 -->
-                        <div class="flex items-start gap-8">
-                            <div class="flex-none">
-                                <div class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold">
-                                    4
-                                </div>
-                            </div>
-                            <div class="flex-1 bg-gray-50 p-6 rounded-2xl shadow-sm">
-                                <h3 class="text-xl font-bold mb-3">Dodání</h3>
-                                <p class="text-gray-600 mb-4">Doručíme vám zboží až domů nebo si jej můžete vyzvednout osobně</p>
-                                <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                    <div class="flex items-center gap-4">
-                                        <i class="fas fa-shield-alt text-2xl text-green-500"></i>
-                                        <div>
-                                            <p class="font-bold">Garance spokojenosti</p>
-                                            <p class="text-sm text-gray-600">Zboží vždy důkladně zkontrolujeme před předáním</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="max-w-4xl mx-auto space-y-5">
+                    <!-- Step 1 -->
+                    <div class="flex gap-5 bg-gray-50 rounded-3xl p-6">
+                        <div class="flex-none w-11 h-11 bg-black text-white rounded-full flex items-center justify-center font-extrabold text-lg shrink-0">1</div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-1">Výběr produktu</h3>
+                            <p class="text-gray-600 text-sm">Vyberte si produkt z naší nabídky a klikněte na <strong>Mám zájem</strong>. Můžete si vybrat i více produktů najednou.</p>
                         </div>
                     </div>
-
-                    <!-- Call to Action -->
-                    <div class="mt-12 text-center">
-                        <a href="#produkty" class="inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-full hover:bg-gray-800 transition-colors">
-                            <span class="font-bold">Prohlédnout nabídku</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <!-- Step 2 -->
+                    <div class="flex gap-5 bg-gray-50 rounded-3xl p-6">
+                        <div class="flex-none w-11 h-11 bg-black text-white rounded-full flex items-center justify-center font-extrabold text-lg shrink-0">2</div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-1">Vyplnění formuláře</h3>
+                            <p class="text-gray-600 text-sm">Zadejte kontaktní údaje a adresu doručení. Celý proces trvá méně než 2 minuty.</p>
+                        </div>
                     </div>
+                    <!-- Step 3 -->
+                    <div class="flex gap-5 bg-gray-50 rounded-3xl p-6">
+                        <div class="flex-none w-11 h-11 bg-black text-white rounded-full flex items-center justify-center font-extrabold text-lg shrink-0">3</div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-1">Potvrzení a platba</h3>
+                            <p class="text-gray-600 text-sm">Obratem vás kontaktujeme s QR kódem pro platbu a detaily dopravy.</p>
+                        </div>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="flex gap-5 bg-gray-50 rounded-3xl p-6">
+                        <div class="flex-none w-11 h-11 bg-black text-white rounded-full flex items-center justify-center font-extrabold text-lg shrink-0">4</div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-1">Dodání</h3>
+                            <p class="text-gray-600 text-sm">Doručíme zboží až domů nebo si jej vyzvedněte osobně. Vždy důkladně zkontrolováno.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-10">
+                    <a href="#produkty" class="inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-gray-800 transition-colors">
+                        Prohlédnout nabídku <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </section>
 
-        <!-- Contact Section -->
-        <section id="kontakt" class="py-16 bg-white">
+        <!-- ===== CONTACT ===== -->
+        <section id="kontakt" class="py-14 bg-gray-50">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-12">Kontaktujte nás</h2>
-                
-                <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                    <!-- Contact Info Card -->
-                    <div class="bg-gray-50 p-8 rounded-2xl shadow-sm">
-                        <div class="space-y-8">
-                            <!-- Contact Details -->
-                            <div>
-                                <h3 class="text-2xl font-bold mb-6">Kontaktní informace</h3>
-                                <div class="space-y-4">
-                                    <a href="https://goo.gl/maps/1234" target="_blank" 
-                                       class="flex items-center space-x-4 p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                                        <div class="bg-black text-white p-3 rounded-lg">
-                                            <i class="fas fa-map-marker-alt text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium">Adresa</p>
-                                            <p class="text-gray-600">Zvole 39, 789 01 Česká republika</p>
-                                        </div>
-                                    </a>
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Kontaktujte nás</h2>
+                </div>
 
-                                    <a href="tel:+420603538440" 
-                                       class="flex items-center space-x-4 p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                                        <div class="bg-black text-white p-3 rounded-lg">
-                                            <i class="fas fa-phone text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium">Telefon</p>
-                                            <p class="text-gray-600">603 538 440</p>
-                                        </div>
-                                    </a>
-
-                                    <a href="mailto:Retrodilna@seznam.cz" 
-                                       class="flex items-center space-x-4 p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                                        <div class="bg-black text-white p-3 rounded-lg">
-                                            <i class="fas fa-envelope text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium">Email</p>
-                                            <p class="text-gray-600">Retrodilna@seznam.cz</p>
-                                        </div>
-                                    </a>
-                                </div>
+                <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                    <div class="bg-white rounded-3xl p-7 shadow-sm space-y-6">
+                        <div>
+                            <h3 class="text-xl font-bold mb-5">Kontaktní informace</h3>
+                            <div class="space-y-3">
+                                <a href="https://maps.google.com/?q=Zvole+39,789+01" target="_blank"
+                                   class="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-colors group">
+                                    <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center shrink-0">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400 font-medium">Adresa</p>
+                                        <p class="font-semibold text-sm group-hover:text-black">Zvole 39, 789 01 Česká republika</p>
+                                    </div>
+                                </a>
+                                <a href="tel:+420603538440"
+                                   class="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-colors group">
+                                    <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center shrink-0">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400 font-medium">Telefon</p>
+                                        <p class="font-semibold text-sm group-hover:text-black">603 538 440</p>
+                                    </div>
+                                </a>
+                                <a href="mailto:Retrodilna@seznam.cz"
+                                   class="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-colors group">
+                                    <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center shrink-0">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400 font-medium">Email</p>
+                                        <p class="font-semibold text-sm group-hover:text-black">Retrodilna@seznam.cz</p>
+                                    </div>
+                                </a>
                             </div>
+                        </div>
 
-                            <!-- Opening Hours -->
-                            <div>
-                                <h3 class="text-2xl font-bold mb-6">Otevírací doba</h3>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between py-2 border-b">
-                                        <span class="font-medium">Pondělí - Pátek</span>
-                                        <span class="text-gray-600">9:00 - 17:00</span>
-                                    </div>
-                                    <div class="flex justify-between py-2 border-b">
-                                        <span class="font-medium">Sobota</span>
-                                        <span class="text-gray-600">9:00 - 12:00</span>
-                                    </div>
-                                    <div class="flex justify-between py-2 border-b">
-                                        <span class="font-medium">Neděle</span>
-                                        <span class="text-gray-600">Zavřeno</span>
-                                    </div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">Otevírací doba</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="font-medium">Pondělí – Pátek</span>
+                                    <span class="text-gray-600">9:00 – 17:00</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="font-medium">Sobota</span>
+                                    <span class="text-gray-600">9:00 – 12:00</span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="font-medium">Neděle</span>
+                                    <span class="text-gray-400">Zavřeno</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Google Map -->
-                    <div class="h-[500px] rounded-2xl overflow-hidden shadow-sm">
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2573.008307238365!2d16.911719776822597!3d49.84230143096485!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471213dca595b69b%3A0xbd70ddc711b53579!2sZvole%2039%2C%20789%2001%20Zvole%2C%20%C4%8Cesko!5e0!3m2!1scs!2sde!4v1741019296866!5m2!1scs!2sde" 
-                            width="100%" 
-                            height="100%" 
-                            style="border:0;" 
-                            allowfullscreen="" 
-                            loading="lazy" 
-                            referrerpolicy="no-referrer-when-downgrade">
+                    <!-- Map -->
+                    <div class="h-[400px] md:h-auto rounded-3xl overflow-hidden shadow-sm">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2573.008307238365!2d16.911719776822597!3d49.84230143096485!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471213dca595b69b%3A0xbd70ddc711b53579!2sZvole%2039%2C%20789%2001%20Zvole%2C%20%C4%8Cesko!5e0!3m2!1scs!2sde!4v1741019296866!5m2!1scs!2sde"
+                            width="100%" height="100%"
+                            style="border:0;" allowfullscreen="" loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade" title="Mapa – Retrodílna.cz">
                         </iframe>
                     </div>
                 </div>
@@ -575,128 +479,197 @@
         </section>
     </main>
 
-    <!-- Inquiry Modal -->
-    <div id="inquiryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Mám zájem</h3>
-                <button onclick="closeInquiryModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
+    <!-- ===== INQUIRY MODAL (multi-step) ===== -->
+    <div id="inquiryModal"
+         class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-[#0a0a0a] text-white px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-lg">Mám zájem</h3>
+                    <p id="stepLabel" class="text-gray-400 text-sm">Krok 1 ze 3</p>
+                </div>
+                <button onclick="closeInquiryModal()"
+                        class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
-            <form id="inquiryForm" class="space-y-4 relative">
-                <!-- Add loading overlay -->
-                <div class="loading-overlay">
-                    <div class="text-lg font-medium mb-2">Odesílání...</div>
-                    <div class="progress-bar">
-                        <div class="progress-bar-fill"></div>
-                    </div>
-                </div>
-                
-                <input type="hidden" id="productTitle" name="productTitle">
-                <input type="hidden" id="productPrice" name="productPrice">
-                <input type="hidden" id="productUrl" name="productUrl">
-                
-                <!-- Další produkty -->
-                <div class="mb-4">
-                    <button type="button" 
-                        id="toggleProducts" 
-                        class="text-left px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 transition-colors w-full flex justify-between items-center"
-                        onclick="toggleProductSelection()"
-                    >
-                        <span>Mám zájem i o další produkty</span>
-                        <i class="fas fa-chevron-down transition-transform"></i>
-                    </button>
+            <!-- Progress bar -->
+            <div class="h-1 bg-gray-100">
+                <div id="modalProgressBar" class="h-full bg-black transition-all duration-300" style="width:33%"></div>
+            </div>
+
+            <form id="inquiryForm" class="relative">
+                <!-- Loading overlay -->
+                <div class="loading-overlay hidden absolute inset-0 bg-white/90 flex-col items-center justify-center z-10 rounded-b-3xl">
+                    <div class="w-10 h-10 border-4 border-black border-t-transparent rounded-full animate-spin mb-3"></div>
+                    <p class="font-medium">Odesílám…</p>
                 </div>
 
-                <!-- Product selection (initially hidden) -->
-                <div id="productSelection" class="space-y-4 hidden opacity-0 transition-all duration-300">
-                    <div id="selectedProducts" class="space-y-2">
-                        <!-- Selected products will be listed here -->
-                    </div>
-                    <div class="border rounded-lg p-4">
-                        <div class="text-sm font-medium text-gray-700 mb-2">Kliknutím vyberte další produkty:</div>
-                        <div id="productList">
-                            <!-- Available products will be listed here -->
+                <!-- Hidden fields -->
+                <input type="hidden" id="hProductTitle" name="productTitle">
+                <input type="hidden" id="hProductPrice" name="productPrice">
+                <input type="hidden" id="hProductUrl" name="productUrl">
+                <input type="hidden" id="hAdditional" name="additional_products" value="Žádné další produkty">
+
+                <!-- Step 1: Product -->
+                <div id="mStep1" class="p-6 space-y-4">
+                    <div class="flex items-start gap-4 bg-gray-50 rounded-2xl p-4">
+                        <img id="modalProductImage" src="" alt=""
+                             class="w-16 h-16 object-contain rounded-xl bg-white shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p id="modalProductTitle" class="font-semibold line-clamp-2 text-sm"></p>
+                            <p id="modalProductPrice" class="text-gray-600 mt-1 font-bold"></p>
                         </div>
                     </div>
-                </div>
-
-                <!-- Rest of the form -->
-                <div class="flex items-center mb-4">
-                    <button type="button" 
-                        id="toggleCompany" 
-                        class="text-left px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 transition-colors w-full flex justify-between items-center"
-                        onclick="toggleCompanyFields()"
-                    >
-                        <span>Firma?</span>
-                        <i class="fas fa-chevron-down transition-transform"></i>
+                    <p class="text-sm text-gray-500">Chcete tento produkt objednat nebo se na něj zeptat? Klikněte na <strong>Pokračovat</strong>.</p>
+                    <button type="button" onclick="modalNext()"
+                            class="w-full bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">
+                        Pokračovat <i class="fas fa-arrow-right ml-1"></i>
                     </button>
                 </div>
 
-                <!-- Company fields (initially hidden) -->
-                <div id="companyFields" class="space-y-4 hidden opacity-0 transition-all duration-300">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Firma</label>
-                        <input type="text" name="companyName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black">
+                <!-- Step 2: Contact -->
+                <div id="mStep2" class="p-6 space-y-4 hidden">
+                    <h4 class="font-bold">Vaše kontaktní údaje</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Jméno a příjmení *</label>
+                            <input type="text" name="name" required
+                                   class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="Jan Novák">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Email *</label>
+                            <input type="email" name="email" required
+                                   class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="jan@email.cz">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Telefon *</label>
+                            <input type="tel" name="phone" required
+                                   class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="+420 600 000 000">
+                        </div>
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Adresa firmy</label>
-                        <textarea name="companyAddress" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">IČ</label>
-                        <input type="text" name="ic" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">DIČ</label>
-                        <input type="text" name="dic" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black">
+                    <div class="flex gap-3">
+                        <button type="button" onclick="modalPrev()"
+                                class="border-2 border-gray-200 text-gray-600 py-3 px-5 rounded-full font-semibold hover:border-black hover:text-black transition-colors shrink-0">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <button type="button" onclick="modalNext()"
+                                class="flex-1 bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">
+                            Pokračovat <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Jméno</label>
-                    <input type="text" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black">
+                <!-- Step 3: Address + note -->
+                <div id="mStep3" class="p-6 space-y-4 hidden">
+                    <h4 class="font-bold">Doručení a poznámka</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Adresa doručení *</label>
+                            <textarea name="address" required rows="2"
+                                      class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors resize-none"
+                                      placeholder="Ulice 1, 123 45 Město"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Poznámka</label>
+                            <textarea name="note" rows="2"
+                                      class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors resize-none"
+                                      placeholder="Termín, dotaz, preferovaná doprava…"></textarea>
+                        </div>
+                        <!-- Company toggle -->
+                        <button type="button" onclick="toggleCompanyFields()"
+                                class="w-full text-left px-4 py-2.5 rounded-2xl bg-gray-50 hover:bg-gray-100 flex justify-between items-center text-sm font-medium transition-colors">
+                            <span><i class="fas fa-building mr-2 text-gray-400"></i>Nákup na firmu?</span>
+                            <i class="fas fa-chevron-down transition-transform" id="companyArrow"></i>
+                        </button>
+                        <div id="companyFields" class="hidden space-y-3 pl-1">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Název firmy</label>
+                                <input type="text" name="companyName"
+                                       class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">IČO</label>
+                                    <input type="text" name="ic"
+                                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">DIČ</label>
+                                    <input type="text" name="dic"
+                                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="modalPrev()"
+                                class="border-2 border-gray-200 text-gray-600 py-3 px-5 rounded-full font-semibold hover:border-black hover:text-black transition-colors shrink-0">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <button type="submit"
+                                class="flex-1 bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-paper-plane"></i> Odeslat poptávku
+                        </button>
+                    </div>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Telefon</label>
-                    <input type="tel" name="phone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Adresa</label>
-                    <textarea name="address" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"></textarea>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Poznámka</label>
-                    <textarea name="note" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"></textarea>
-                </div>
-                
-                <button type="submit" class="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition-colors">
-                    Odeslat
-                </button>
             </form>
         </div>
     </div>
 
-    <footer class="bg-black text-white py-8">
-        <div class="container mx-auto px-4 text-center">
-            <div class="flex justify-center space-x-4 mb-4">
-                <a href="#" class="hover:text-gray-400"><i class="fab fa-facebook text-2xl"></i></a>
-                <a href="#" class="hover:text-gray-400"><i class="fab fa-instagram text-2xl"></i></a>
-                <a href="#" class="hover:text-gray-400"><i class="fab fa-twitter text-2xl"></i></a>
+    <!-- Notification -->
+    <div id="notification" class="fixed top-5 right-5 z-[9999] hidden">
+        <div class="bg-[#0a0a0a] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm font-medium">
+            <i id="notifIcon" class="fas fa-check-circle"></i>
+            <span id="notifText"></span>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-[#0a0a0a] text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <p class="text-xl font-extrabold mb-2">RETRODÍLNA<span class="text-gray-500">.CZ</span></p>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Specializovaný obchod zaměřený na prodej a renovaci vintage nábytku a retro designových kousků.
+                    </p>
+                </div>
+                <div>
+                    <p class="font-bold text-sm mb-3 uppercase tracking-wider text-gray-400">Navigace</p>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <a href="#produkty" class="block hover:text-white transition-colors">Produkty</a>
+                        <a href="#sluzby" class="block hover:text-white transition-colors">Služby</a>
+                        <a href="#jak-nakupovat" class="block hover:text-white transition-colors">Jak nakupovat</a>
+                        <a href="#kontakt" class="block hover:text-white transition-colors">Kontakt</a>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-bold text-sm mb-3 uppercase tracking-wider text-gray-400">Kontakt</p>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <p><i class="fas fa-map-marker-alt w-4 mr-2"></i>Zvole 39, 789 01 ČR</p>
+                        <a href="tel:+420603538440" class="block hover:text-white transition-colors"><i class="fas fa-phone w-4 mr-2"></i>603 538 440</a>
+                        <a href="mailto:Retrodilna@seznam.cz" class="block hover:text-white transition-colors"><i class="fas fa-envelope w-4 mr-2"></i>Retrodilna@seznam.cz</a>
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <a href="https://www.facebook.com" target="_blank" rel="noopener"
+                           class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                            <i class="fab fa-facebook text-sm"></i>
+                        </a>
+                        <a href="https://www.instagram.com" target="_blank" rel="noopener"
+                           class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                            <i class="fab fa-instagram text-sm"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <p>&copy; 2024 Retrodílna.cz | Všechna práva vyhrazena</p>
+            <div class="border-t border-white/10 pt-6 text-center text-gray-500 text-sm">
+                &copy; 2025 Retrodílna.cz | Všechna práva vyhrazena
+            </div>
         </div>
     </footer>
 

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO – dynamicky doplněno JS -->
+    <title id="pageTitle">Produkt | Retrodílna.cz</title>
+    <meta name="description" id="metaDesc" content="Vintage nábytek a retro design | Retrodílna.cz">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" id="canonicalUrl" href="https://www.retrodilna.cz/product.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="product">
+    <meta property="og:site_name" content="Retrodílna.cz">
+    <meta property="og:title" id="ogTitle" content="Produkt | Retrodílna.cz">
+    <meta property="og:description" id="ogDesc" content="Vintage nábytek a retro design">
+    <meta property="og:image" id="ogImage" content="">
+    <meta property="og:url" id="ogUrl" content="">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="twTitle" content="Produkt | Retrodílna.cz">
+    <meta name="twitter:description" id="twDesc" content="Vintage nábytek a retro design">
+    <meta name="twitter:image" id="twImage" content="">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="Retrodilna">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#0a0a0a', secondary: '#fafafa' },
+                    fontFamily: { sans: ['Exo 2', 'sans-serif'] },
+                    borderRadius: { '2xl': '1rem', '3xl': '1.5rem', '4xl': '2rem' }
+                }
+            }
+        }
+    </script>
+
+    <!-- JSON-LD structured data – doplněno JS -->
+    <script type="application/ld+json" id="productSchema">{}</script>
+</head>
+<body class="bg-[#fafafa] font-sans">
+
+    <!-- ===== HEADER ===== -->
+    <header class="bg-[#0a0a0a] text-white shadow-lg fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <span class="text-xl font-bold tracking-tight">RETRODÍLNA<span class="text-gray-400">.CZ</span></span>
+            </a>
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <a href="index.html#produkty" class="hover:text-gray-300 transition-colors">Produkty</a>
+                <a href="index.html#sluzby" class="hover:text-gray-300 transition-colors">Služby</a>
+                <a href="index.html#jak-nakupovat" class="hover:text-gray-300 transition-colors">Jak nakupovat</a>
+                <a href="index.html#kontakt" class="hover:text-gray-300 transition-colors">Kontakt</a>
+            </nav>
+            <a href="index.html#produkty"
+               class="text-sm bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors">
+                ← Zpět na produkty
+            </a>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main class="pt-16">
+
+        <!-- Breadcrumb -->
+        <div class="bg-white border-b border-gray-100">
+            <div class="container mx-auto px-4 py-3">
+                <nav class="flex items-center gap-2 text-sm text-gray-500" id="breadcrumb">
+                    <a href="index.html" class="hover:text-black transition-colors">Domů</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <a href="index.html#produkty" class="hover:text-black transition-colors">Produkty</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span id="breadcrumbTitle" class="text-black font-medium truncate max-w-[200px]">…</span>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="loadingState" class="container mx-auto px-4 py-24 text-center">
+            <div class="inline-flex flex-col items-center gap-4">
+                <div class="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-gray-500">Načítám produkt…</p>
+            </div>
+        </div>
+
+        <!-- Error state -->
+        <div id="errorState" class="container mx-auto px-4 py-24 text-center hidden">
+            <div class="max-w-md mx-auto bg-white rounded-3xl p-10 shadow-sm">
+                <i class="fas fa-exclamation-triangle text-4xl text-gray-400 mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">Produkt nenalezen</h2>
+                <p class="text-gray-500 mb-6">Tento produkt není dostupný nebo byl odstraněn.</p>
+                <a href="index.html#produkty"
+                   class="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 transition-colors">
+                    <i class="fas fa-arrow-left"></i> Zpět na produkty
+                </a>
+            </div>
+        </div>
+
+        <!-- Product detail (hidden until loaded) -->
+        <div id="productDetail" class="hidden">
+
+            <!-- Product section -->
+            <section class="py-12">
+                <div class="container mx-auto px-4">
+                    <div class="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+
+                        <!-- LEFT: Image gallery -->
+                        <div>
+                            <!-- Main image -->
+                            <div class="bg-white rounded-3xl overflow-hidden shadow-sm mb-3 aspect-square flex items-center justify-center p-4">
+                                <img id="mainImage" src="" alt=""
+                                     class="w-full h-full object-contain rounded-2xl transition-all duration-300">
+                            </div>
+                            <!-- Thumbnail strip -->
+                            <div id="thumbnailStrip" class="flex gap-2 overflow-x-auto pb-1 hidden">
+                                <!-- Thumbnails added by JS -->
+                            </div>
+                        </div>
+
+                        <!-- RIGHT: Product info -->
+                        <div class="flex flex-col gap-6">
+
+                            <!-- Category + designer badges -->
+                            <div class="flex flex-wrap gap-2" id="badgesRow">
+                                <!-- Filled by JS -->
+                            </div>
+
+                            <!-- Title -->
+                            <h1 id="productTitle" class="text-3xl md:text-4xl font-extrabold leading-tight text-[#0a0a0a]">
+                                …
+                            </h1>
+
+                            <!-- Price -->
+                            <div class="flex items-center gap-3">
+                                <span id="productPrice"
+                                      class="text-3xl font-extrabold text-[#0a0a0a]">–</span>
+                            </div>
+
+                            <!-- Location -->
+                            <div id="locationRow" class="flex items-center gap-2 text-gray-500 text-sm">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span id="productLocation">–</span>
+                            </div>
+
+                            <!-- Description -->
+                            <div id="descriptionBlock" class="hidden">
+                                <h3 class="font-semibold mb-2 text-sm uppercase tracking-wider text-gray-400">Popis</h3>
+                                <p id="productDescription" class="text-gray-700 leading-relaxed whitespace-pre-line"></p>
+                            </div>
+
+                            <!-- Specs -->
+                            <div id="specsBlock" class="bg-white rounded-2xl p-5 shadow-sm grid grid-cols-2 gap-4">
+                                <!-- Filled by JS -->
+                            </div>
+
+                            <!-- CTA buttons -->
+                            <div class="flex flex-col sm:flex-row gap-3 mt-2">
+                                <button id="btnMamZajem"
+                                        class="flex-1 bg-black text-white py-3.5 px-6 rounded-full font-bold text-base hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                    <i class="fas fa-envelope"></i> Mám zájem
+                                </button>
+                                <a href="tel:+420603538440"
+                                   class="flex-1 border-2 border-black text-black py-3.5 px-6 rounded-full font-bold text-base hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
+                                    <i class="fas fa-phone"></i> 603 538 440
+                                </a>
+                            </div>
+
+                            <!-- Social share -->
+                            <div class="flex items-center gap-3 text-gray-400 text-sm">
+                                <span>Sdílet:</span>
+                                <a id="shareFb" href="#" target="_blank" rel="noopener"
+                                   class="hover:text-blue-600 transition-colors"><i class="fab fa-facebook text-lg"></i></a>
+                                <button onclick="copyProductLink()"
+                                        class="hover:text-black transition-colors"><i class="fas fa-link text-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Related products -->
+            <section id="relatedSection" class="py-12 bg-white hidden">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-2xl font-bold mb-8">Podobné produkty</h2>
+                    <div id="relatedGrid" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- ===== INQUIRY MODAL (multi-step) ===== -->
+    <div id="inquiryModal"
+         class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-[#0a0a0a] text-white px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-lg">Mám zájem</h3>
+                    <p id="stepLabel" class="text-gray-400 text-sm">Krok 1 ze 3</p>
+                </div>
+                <button onclick="closeModal()"
+                        class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="h-1 bg-gray-100">
+                <div id="progressBar" class="h-full bg-black transition-all duration-300" style="width:33%"></div>
+            </div>
+
+            <form id="inquiryForm" class="relative">
+                <!-- Loading overlay -->
+                <div class="loading-overlay hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center z-10 rounded-b-3xl">
+                    <div class="w-10 h-10 border-4 border-black border-t-transparent rounded-full animate-spin mb-3"></div>
+                    <p class="font-medium">Odesílám…</p>
+                </div>
+
+                <!-- Hidden fields -->
+                <input type="hidden" id="hProductTitle" name="productTitle">
+                <input type="hidden" id="hProductPrice" name="productPrice">
+                <input type="hidden" id="hProductUrl" name="productUrl">
+                <input type="hidden" id="hAdditional" name="additional_products" value="Žádné další produkty">
+
+                <!-- ===== STEP 1: Produkt ===== -->
+                <div id="step1" class="p-6 space-y-4">
+                    <div class="flex items-start gap-4 bg-gray-50 rounded-2xl p-4">
+                        <img id="modalProductImage" src="" alt=""
+                             class="w-16 h-16 object-contain rounded-xl bg-white flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p id="modalProductTitle" class="font-semibold line-clamp-2 text-sm"></p>
+                            <p id="modalProductPrice" class="text-gray-600 mt-1"></p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        Chcete se zeptat na tento produkt nebo ho objednat? Klikněte na <strong>Pokračovat</strong>.
+                    </p>
+                    <button type="button" onclick="nextStep()"
+                            class="w-full bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">
+                        Pokračovat <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- ===== STEP 2: Kontakt ===== -->
+                <div id="step2" class="p-6 space-y-4 hidden">
+                    <h4 class="font-semibold text-base">Vaše kontaktní údaje</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Jméno a příjmení *</label>
+                            <input type="text" name="name" required
+                                   class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="Jan Novák">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Email *</label>
+                            <input type="email" name="email" required
+                                   class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="jan@email.cz">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Telefon *</label>
+                            <input type="tel" name="phone" required
+                                   class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors"
+                                   placeholder="+420 600 000 000">
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="prevStep()"
+                                class="flex-none border-2 border-gray-200 text-gray-600 py-3 px-5 rounded-full font-semibold hover:border-black hover:text-black transition-colors">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <button type="button" onclick="nextStep()"
+                                class="flex-1 bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">
+                            Pokračovat <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 3: Adresa + poznámka ===== -->
+                <div id="step3" class="p-6 space-y-4 hidden">
+                    <h4 class="font-semibold text-base">Doručení a poznámka</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Adresa doručení *</label>
+                            <textarea name="address" required rows="2"
+                                      class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors resize-none"
+                                      placeholder="Ulice 1, 123 45 Město"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Poznámka</label>
+                            <textarea name="note" rows="2"
+                                      class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors resize-none"
+                                      placeholder="Např. termín, dotaz…"></textarea>
+                        </div>
+
+                        <!-- Company toggle -->
+                        <button type="button" onclick="toggleCompanyFields()"
+                                class="w-full text-left px-4 py-2.5 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors flex justify-between items-center text-sm font-medium">
+                            <span><i class="fas fa-building mr-2 text-gray-400"></i> Nákup na firmu?</span>
+                            <i class="fas fa-chevron-down transition-transform" id="companyArrow"></i>
+                        </button>
+                        <div id="companyFields" class="hidden space-y-3 pl-2">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Název firmy</label>
+                                <input type="text" name="companyName"
+                                       class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">IČO</label>
+                                    <input type="text" name="ic"
+                                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">DIČ</label>
+                                    <input type="text" name="dic"
+                                           class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" onclick="prevStep()"
+                                class="flex-none border-2 border-gray-200 text-gray-600 py-3 px-5 rounded-full font-semibold hover:border-black hover:text-black transition-colors">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <button type="submit"
+                                class="flex-1 bg-black text-white py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-paper-plane"></i> Odeslat poptávku
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-5 right-5 z-[9999] hidden">
+        <div class="bg-black text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm font-medium">
+            <i id="notifIcon" class="fas fa-check-circle"></i>
+            <span id="notifText"></span>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-[#0a0a0a] text-white py-10 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <p class="text-xl font-bold tracking-tight mb-1">RETRODÍLNA<span class="text-gray-500">.CZ</span></p>
+                    <p class="text-gray-400 text-sm">Zvole 39, 789 01 Česká republika</p>
+                </div>
+                <div class="flex items-center gap-5">
+                    <a href="https://www.facebook.com" target="_blank" rel="noopener"
+                       class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                        <i class="fab fa-facebook text-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com" target="_blank" rel="noopener"
+                       class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                        <i class="fab fa-instagram text-lg"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-6 pt-6 text-center text-gray-500 text-sm">
+                &copy; 2025 Retrodílna.cz | Všechna práva vyhrazena
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        emailjs.init("TJRmVM_YRqmfCKXKn");
+
+        let currentProduct = null;
+        let allProducts = [];
+        let currentStep = 1;
+
+        // ── Helper: build Offer schema without fake price "0" ───────────────────
+        function buildOfferSchema(p) {
+            const priceStr = (p.price || '').replace(/[^0-9]/g, '');
+            const base = {
+                "@type": "Offer",
+                "availability": "https://schema.org/InStock",
+                "seller": { "@type": "Organization", "name": "Retrodílna.cz" }
+            };
+            if (priceStr) {
+                base.priceCurrency = "CZK";
+                base.price = priceStr;
+            } else {
+                // Price negotiable – use PriceSpecification without a fixed value
+                base.priceSpecification = {
+                    "@type": "PriceSpecification",
+                    "priceCurrency": "CZK",
+                    "description": "Cena dohodou"
+                };
+            }
+            return base;
+        }
+
+        // ── Load product ────────────────────────────────────────────────────────
+        async function loadProduct() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+
+            if (!productId) {
+                showError();
+                return;
+            }
+
+            try {
+                // Try Firebase first
+                const doc = await db.collection('products').doc(productId).get();
+                if (doc.exists) {
+                    currentProduct = { id: doc.id, ...doc.data() };
+                    // Load all for related
+                    const snap = await db.collection('products').where('active', '==', true).limit(20).get();
+                    allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    renderProduct(currentProduct);
+                    return;
+                }
+            } catch (e) {
+                console.warn('Firebase unavailable, falling back to products.json', e);
+            }
+
+            // Fallback: products.json
+            try {
+                const res = await fetch('products.json');
+                const data = await res.json();
+                allProducts = data.products || [];
+                currentProduct = allProducts.find(p => p.id === productId);
+                if (currentProduct) {
+                    renderProduct(currentProduct);
+                } else {
+                    showError();
+                }
+            } catch (e) {
+                showError();
+            }
+        }
+
+        function showError() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        // ── Render product ───────────────────────────────────────────────────────
+        function renderProduct(p) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('productDetail').classList.remove('hidden');
+
+            // SEO
+            const seoTitle = `${p.title} | Retrodílna.cz`;
+            const seoDesc = p.description
+                ? `${p.description.substring(0, 140)} — Retrodílna.cz`
+                : `${p.title} za ${p.price}. Vintage nábytek a retro design. Retrodílna.cz`;
+            const productUrl = `https://www.retrodilna.cz/product.html?id=${p.id}`;
+            const mainImage = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+
+            document.getElementById('pageTitle').textContent = seoTitle;
+            document.getElementById('metaDesc').setAttribute('content', seoDesc);
+            document.getElementById('canonicalUrl').setAttribute('href', productUrl);
+            document.getElementById('ogTitle').setAttribute('content', seoTitle);
+            document.getElementById('ogDesc').setAttribute('content', seoDesc);
+            document.getElementById('ogImage').setAttribute('content', mainImage);
+            document.getElementById('ogUrl').setAttribute('content', productUrl);
+            document.getElementById('twTitle').setAttribute('content', seoTitle);
+            document.getElementById('twDesc').setAttribute('content', seoDesc);
+            document.getElementById('twImage').setAttribute('content', mainImage);
+
+            // JSON-LD
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": p.title,
+                "description": p.description || p.title,
+                "image": Array.isArray(p.images) ? p.images : (p.image ? [p.image] : []),
+                "offers": buildOfferSchema(p),
+                "brand": { "@type": "Brand", "name": p.designer || "Retrodílna" },
+                "category": p.category || ""
+            };
+            document.getElementById('productSchema').textContent = JSON.stringify(schema);
+
+            // Breadcrumb
+            document.getElementById('breadcrumbTitle').textContent = p.title;
+
+            // Main image
+            document.getElementById('mainImage').src = mainImage;
+            document.getElementById('mainImage').alt = p.title;
+
+            // Thumbnail strip
+            const images = Array.isArray(p.images) && p.images.length > 1 ? p.images : [];
+            if (images.length > 1) {
+                const strip = document.getElementById('thumbnailStrip');
+                strip.classList.remove('hidden');
+                strip.innerHTML = images.map((img, i) => `
+                    <button onclick="switchImage('${img}')"
+                            class="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 ${i === 0 ? 'border-black' : 'border-transparent'} hover:border-black transition-colors">
+                        <img src="${img}" alt="" class="w-full h-full object-contain bg-white">
+                    </button>
+                `).join('');
+            }
+
+            // Badges
+            const badges = document.getElementById('badgesRow');
+            badges.innerHTML = '';
+            if (p.category) {
+                badges.innerHTML += `<span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">
+                    <i class="fas fa-tag"></i> ${p.category}
+                </span>`;
+            }
+            if (p.designer) {
+                badges.innerHTML += `<span class="inline-flex items-center gap-1.5 bg-black text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    <i class="fas fa-industry"></i> ${p.designer}
+                </span>`;
+            }
+
+            // Title, price, location
+            document.getElementById('productTitle').textContent = p.title;
+            document.getElementById('productPrice').textContent = p.price || 'Dohodou';
+            if (p.location) document.getElementById('productLocation').textContent = p.location;
+
+            // Description
+            if (p.description) {
+                document.getElementById('descriptionBlock').classList.remove('hidden');
+                document.getElementById('productDescription').textContent = p.description;
+            }
+
+            // Specs
+            const specs = [];
+            if (p.condition) specs.push({ icon: 'fa-star', label: 'Stav', value: p.condition });
+            if (p.dimensions) specs.push({ icon: 'fa-ruler', label: 'Rozměry', value: p.dimensions });
+            if (p.category) specs.push({ icon: 'fa-tag', label: 'Kategorie', value: p.category });
+            if (p.designer) specs.push({ icon: 'fa-industry', label: 'Výrobce', value: p.designer });
+            if (p.location) specs.push({ icon: 'fa-map-marker-alt', label: 'Lokace', value: p.location });
+
+            const specsBlock = document.getElementById('specsBlock');
+            if (specs.length) {
+                specsBlock.innerHTML = specs.map(s => `
+                    <div class="flex items-start gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas ${s.icon} text-xs text-gray-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-medium">${s.label}</p>
+                            <p class="text-sm font-semibold text-gray-800">${s.value}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                specsBlock.classList.add('hidden');
+            }
+
+            // Share
+            document.getElementById('shareFb').href =
+                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`;
+
+            // Related products
+            renderRelated(p);
+
+            // Inquiry modal prefill
+            document.getElementById('hProductTitle').value = p.title;
+            document.getElementById('hProductPrice').value = p.price || '';
+            document.getElementById('hProductUrl').value = productUrl;
+            document.getElementById('modalProductTitle').textContent = p.title;
+            document.getElementById('modalProductPrice').textContent = p.price || '';
+            document.getElementById('modalProductImage').src = mainImage;
+
+            // CTA button
+            document.getElementById('btnMamZajem').addEventListener('click', openModal);
+        }
+
+        function switchImage(src) {
+            document.getElementById('mainImage').src = src;
+            document.querySelectorAll('#thumbnailStrip button').forEach(btn => {
+                const img = btn.querySelector('img');
+                btn.classList.toggle('border-black', img.src.endsWith(src) || img.getAttribute('src') === src);
+                btn.classList.toggle('border-transparent', !(img.src.endsWith(src) || img.getAttribute('src') === src));
+            });
+        }
+
+        function renderRelated(p) {
+            const related = allProducts
+                .filter(r => r.id !== p.id && (r.category === p.category || r.designer === p.designer))
+                .slice(0, 4);
+
+            if (!related.length) return;
+
+            document.getElementById('relatedSection').classList.remove('hidden');
+            document.getElementById('relatedGrid').innerHTML = related.map(r => {
+                const img = Array.isArray(r.images) && r.images.length ? r.images[0] : (r.image || '');
+                return `
+                    <a href="product.html?id=${r.id}"
+                       class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <div class="aspect-square bg-gray-50 p-3 flex items-center justify-center">
+                            <img src="${img}" alt="${r.title}"
+                                 class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-semibold text-gray-800 line-clamp-2 mb-1">${r.title}</p>
+                            <p class="text-sm font-bold">${r.price || 'Dohodou'}</p>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        // ── Modal ────────────────────────────────────────────────────────────────
+        function openModal() {
+            currentStep = 1;
+            updateStepUI();
+            const modal = document.getElementById('inquiryModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('inquiryModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('inquiryForm').reset();
+            currentStep = 1;
+            updateStepUI();
+        }
+
+        function nextStep() {
+            if (currentStep === 2) {
+                const step2 = document.getElementById('step2');
+                const required = step2.querySelectorAll('[required]');
+                for (const el of required) {
+                    if (!el.checkValidity()) { el.reportValidity(); return; }
+                }
+            }
+            if (currentStep < 3) { currentStep++; updateStepUI(); }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) { currentStep--; updateStepUI(); }
+        }
+
+        function updateStepUI() {
+            [1, 2, 3].forEach(n => {
+                document.getElementById(`step${n}`).classList.toggle('hidden', n !== currentStep);
+            });
+            document.getElementById('stepLabel').textContent = `Krok ${currentStep} ze 3`;
+            document.getElementById('progressBar').style.width = `${Math.round((currentStep / 3) * 100)}%`;
+        }
+
+        function toggleCompanyFields() {
+            const fields = document.getElementById('companyFields');
+            const arrow = document.getElementById('companyArrow');
+            const hidden = fields.classList.toggle('hidden');
+            arrow.style.transform = hidden ? '' : 'rotate(180deg)';
+        }
+
+        function copyProductLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showNotification('Odkaz zkopírován!', 'success');
+            });
+        }
+
+        // ── Notification ─────────────────────────────────────────────────────────
+        function showNotification(msg, type = 'default') {
+            const el = document.getElementById('notification');
+            const icon = document.getElementById('notifIcon');
+            const text = document.getElementById('notifText');
+            icon.className = type === 'success' ? 'fas fa-check-circle text-green-400'
+                           : type === 'error'   ? 'fas fa-exclamation-circle text-red-400'
+                           :                      'fas fa-info-circle';
+            text.textContent = msg;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3500);
+        }
+
+        // ── Form submit ──────────────────────────────────────────────────────────
+        document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const overlay = this.querySelector('.loading-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            const fd = new FormData(this);
+            const d = Object.fromEntries(fd);
+            const isCompany = !document.getElementById('companyFields').classList.contains('hidden');
+
+            try {
+                await emailjs.send('service_4xb9s3i', 'template_nuyzj2z', {
+                    to_email: 'retrodilna@seznam.cz',
+                    from_name: d.name,
+                    from_email: d.email,
+                    phone: d.phone,
+                    address: d.address,
+                    is_company: isCompany ? 'Ano' : 'Ne',
+                    company_name: d.companyName || '',
+                    company_address: '',
+                    ic: d.ic || '',
+                    dic: d.dic || '',
+                    note: d.note || '',
+                    product_title: d.productTitle,
+                    product_price: d.productPrice,
+                    product_url: d.productUrl,
+                    additional_products: d.additional_products || 'Žádné další produkty'
+                });
+
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                closeModal();
+                showNotification('Poptávka byla úspěšně odeslána!', 'success');
+            } catch (err) {
+                console.error(err);
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                showNotification('Chyba při odesílání. Zkuste to znovu.', 'error');
+            }
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('inquiryModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ── Init ─────────────────────────────────────────────────────────────────
+        loadProduct();
+    </script>
+</body>
+</html>
