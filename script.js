@@ -348,13 +348,40 @@ function updateWishlistBadge() {
     const badge = document.getElementById('wishlistBadge');
     if (badge) {
         badge.textContent = count;
-        badge.classList.toggle('hidden', count === 0);
+        if (count > 0) {
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+        } else {
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
+        }
+    }
+    // Update floating heart button icon
+    const btn = document.getElementById('wishlistFloatBtn');
+    if (btn) {
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = count > 0 ? 'fas fa-heart text-sm text-red-500' : 'far fa-heart text-sm';
+    }
+}
+
+function openWishlistModal() {
+    const modal = document.getElementById('wishlistModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeWishlistModal() {
+    const modal = document.getElementById('wishlistModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 }
 
 function toggleWishlistSection() {
-    const section = document.getElementById('wishlistSection');
-    if (section) section.classList.toggle('hidden');
+    openWishlistModal();
 }
 
 async function displayWishlistItems() {
@@ -367,8 +394,14 @@ async function displayWishlistItems() {
     updateWishlistBadge();
 
     if (wishlist.length === 0) {
-        const section = document.getElementById('wishlistSection');
-        if (section) section.classList.add('hidden');
+        container.innerHTML = `
+        <div class="text-center py-10 text-gray-400">
+            <i class="far fa-heart text-4xl mb-3 block"></i>
+            <p class="font-medium">Wishlist je prázdný</p>
+            <p class="text-sm mt-1">Přidejte produkty pomocí srdíčka</p>
+        </div>`;
+        if (countEl) countEl.textContent = '0';
+        if (totalEl) totalEl.textContent = '0 Kč';
         return;
     }
 
@@ -385,9 +418,9 @@ async function displayWishlistItems() {
     container.innerHTML = items.map(p => {
         const img = getProductMainImage(p);
         return `
-        <div class="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm" data-wishlist-item="${escapeHtml(p.id)}">
+        <div class="flex items-center gap-4 bg-gray-50 rounded-2xl p-4" data-wishlist-item="${escapeHtml(p.id)}">
             <a href="product.html?id=${escapeHtml(p.id)}" class="shrink-0">
-                <img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" class="w-16 h-16 object-contain rounded-xl bg-gray-50">
+                <img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" class="w-16 h-16 object-contain rounded-xl bg-white">
             </a>
             <div class="flex-1 min-w-0">
                 <a href="product.html?id=${escapeHtml(p.id)}" class="font-semibold text-sm line-clamp-2 hover:underline">${escapeHtml(p.title)}</a>
@@ -536,7 +569,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleWishlist(productId);
             } else if (btn.dataset.action === 'wishlist-inquiry') {
                 const product = allProducts.find(p => p.id === productId);
-                if (product) openInquiryModal(product);
+                if (product) {
+                    closeWishlistModal();
+                    openInquiryModal(product);
+                }
             }
         });
     }
@@ -560,8 +596,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const isCompany = document.getElementById('companyFields') &&
                               !document.getElementById('companyFields').classList.contains('hidden');
 
+            const hideOverlay = () => {
+                if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+            };
+
             try {
-                await emailjs.send('service_4xb9s3i', 'template_nuyzj2z', {
+                const sendPromise = emailjs.send('service_4xb9s3i', 'template_nuyzj2z', {
                     to_email: 'retrodilna@seznam.cz',
                     from_name: d.name,
                     from_email: d.email,
@@ -579,13 +619,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     additional_products: d.additional_products || 'Žádné další produkty'
                 });
 
-                if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Vypršel časový limit. Zkuste to znovu.')), 15000)
+                );
+
+                await Promise.race([sendPromise, timeoutPromise]);
+
+                hideOverlay();
                 closeInquiryModal();
                 showNotification('Poptávka úspěšně odeslána!', 'success');
             } catch (err) {
                 console.error(err);
-                if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
-                showNotification('Chyba při odesílání. Zkuste to znovu.', 'error');
+                hideOverlay();
+                showNotification('Chyba při odesílání: ' + (err.text || err.message || 'Zkuste to znovu.'), 'error');
             }
         });
     }

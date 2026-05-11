@@ -7,8 +7,8 @@
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
-    <link rel="shortcut icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="shortcut icon" href="favicon/favicon.ico">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -402,6 +402,8 @@
                         const docSnap = await db.collection('products').doc(id).get();
                         const title = docSnap.exists ? (docSnap.data().title || '') : '';
                         deleteProduct(id, title);
+                    } else if (btn.dataset.action === 'toggle-active') {
+                        toggleProductActive(id, btn);
                     }
                 });
             }
@@ -466,6 +468,19 @@
             sel.value = current;
         }
 
+        async function toggleProductActive(id, btn) {
+            try {
+                const docSnap = await db.collection('products').doc(id).get();
+                if (!docSnap.exists) return;
+                const newActive = !docSnap.data().active;
+                await db.collection('products').doc(id).update({ active: newActive, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                showNotification(newActive ? 'Produkt zobrazen na webu' : 'Produkt skryt z webu', 'success');
+                loadProductsList();
+            } catch (e) {
+                showNotification('Chyba: ' + e.message, 'error');
+            }
+        }
+
         // ── PRODUCTS LIST ─────────────────────────────────────────────────────────
         async function loadProductsList() {
             const container = document.getElementById('productsList');
@@ -495,9 +510,14 @@
                                 </span>
                             </div>
                             <div class="flex gap-2 flex-shrink-0">
+                                <button data-action="toggle-active" data-id="${doc.id}"
+                                        title="${p.active ? 'Skrýt z webu' : 'Zobrazit na webu'}"
+                                        class="w-8 h-8 rounded-full ${p.active ? 'bg-green-100 text-green-600 hover:bg-red-100 hover:text-red-500' : 'bg-red-100 text-red-500 hover:bg-green-100 hover:text-green-600'} flex items-center justify-center transition-colors text-xs">
+                                    <i class="fas ${p.active ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                                </button>
                                 <a href="product.html?id=${doc.id}" target="_blank"
                                    class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors text-xs">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-external-link-alt"></i>
                                 </a>
                                 <button data-action="edit" data-id="${doc.id}"
                                         class="w-8 h-8 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center text-gray-600 transition-colors text-xs">
@@ -660,15 +680,15 @@
 
         function renderImagePreviews() {
             const strip = document.getElementById('imagePreviewStrip');
-            const placeholder = document.getElementById('noImagesPlaceholder');
 
             if (uploadedImageUrls.length === 0) {
-                strip.innerHTML = '';
-                strip.appendChild(placeholder);
+                strip.innerHTML = `
+                    <div class="w-20 h-20 rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 text-xs text-center" id="noImagesPlaceholder">
+                        <div><i class="fas fa-image text-2xl mb-1 block"></i>Žádné</div>
+                    </div>`;
                 return;
             }
 
-            placeholder.remove();
             strip.innerHTML = uploadedImageUrls.map((url, i) => `
                 <div class="image-preview-item">
                     <img src="${url}" alt="">
