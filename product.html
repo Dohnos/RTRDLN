@@ -8,13 +8,13 @@
          Must run before any relative-URL resources are parsed. -->
     <script>
         (function () {
-            var b = document.createElement('base');
-            var p = location.pathname
+            var baseElement = document.createElement('base');
+            var basePath = location.pathname
                 .replace(/\/product\.html$/, '/')
                 .replace(/\/produkt\/.*$/, '/');
-            if (!p.endsWith('/')) p += '/';
-            b.href = p;
-            document.head.appendChild(b);
+            if (!basePath.endsWith('/')) basePath += '/';
+            baseElement.href = basePath;
+            document.head.appendChild(baseElement);
         })();
     </script>
 
