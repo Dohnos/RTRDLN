@@ -572,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (EMAILJS_CONFIG) {
         emailjs.init(EMAILJS_CONFIG.publicKey);
     } else {
-        console.error('EmailJS konfigurace nebyla načtena (emailjs-config.js).');
+        console.error('EmailJS konfigurace nebyla načtena (emailjs-config.js). Odesílání poptávky nebude fungovat.');
     }
 
     // Apply pre-selected filter from URL params (e.g. coming from product.html badge)
@@ -629,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 if (!EMAILJS_CONFIG) {
-                    throw new Error('EmailJS konfigurace není dostupná.');
+                    throw new Error('EmailJS konfigurace není dostupná, poptávku nelze odeslat.');
                 }
                 const sendPromise = emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
                     to_email: 'retrodilna@seznam.cz',
