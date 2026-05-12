@@ -9,7 +9,6 @@ let designers = [];
 let categories = [];
 let currentStep = 1;
 let currentModalProduct = null;
-const EMAILJS_CONFIG = window.EMAILJS_CONFIG || null;
 
 // ── Helper: get main product image ───────────────────────────────────────────
 function getProductMainImage(product) {
@@ -569,11 +568,7 @@ function showNotification(msg, type = 'default') {
 
 // ── DOMContentLoaded ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    if (EMAILJS_CONFIG) {
-        emailjs.init(EMAILJS_CONFIG.publicKey);
-    } else {
-        console.error('EmailJS konfigurace nebyla načtena (emailjs-config.js). Odesílání poptávky nebude fungovat.');
-    }
+    emailjs.init("TJRmVM_YRqmfCKXKn");
 
     // Apply pre-selected filter from URL params (e.g. coming from product.html badge)
     const urlParams = new URLSearchParams(window.location.search);
@@ -628,10 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                if (!EMAILJS_CONFIG) {
-                    throw new Error('EmailJS konfigurace není dostupná, poptávku nelze odeslat.');
-                }
-                const sendPromise = emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+                const sendPromise = emailjs.send('service_qpll4z6', 'template_40bjq9p', {
                     to_email: 'retrodilna@seznam.cz',
                     from_name: d.name,
                     from_email: d.email,
@@ -647,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     product_price: d.productPrice,
                     product_url: d.productUrl,
                     additional_products: d.additional_products || 'Žádné další produkty'
-                }, EMAILJS_CONFIG.publicKey);
+                });
 
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Vypršel časový limit. Zkuste to znovu.')), 15000)
