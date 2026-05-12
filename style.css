@@ -391,6 +391,14 @@ h1, h2, h3, h4 { line-height: 1.2; }
     backdrop-filter: blur(6px);
 }
 
+/* ── Hero background ────────────────────────────────────────── */
+.hero-section {
+    background-image: url('https://i.postimg.cc/rwQ95kyJ/4.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 /* ── Hero animation ─────────────────────────────────────────── */
 @keyframes float {
     0%, 100% { transform: translateY(0); }
