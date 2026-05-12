@@ -478,13 +478,9 @@
         </div>
     </footer>
 
+    <script src="emailjs-config.js"></script>
     <script>
-        const EMAILJS_CONFIG = Object.freeze({
-            serviceId: 'service_qpll4z6',
-            templateId: 'template_40bjq9p',
-            publicKey: 'TJRmVM_YRqmfCKXKn'
-        });
-
+        const EMAILJS_CONFIG = window.EMAILJS_CONFIG;
         emailjs.init(EMAILJS_CONFIG.publicKey);
 
         let currentProduct = null;
