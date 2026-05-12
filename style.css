@@ -74,7 +74,7 @@ h1, h2, h3, h4 { line-height: 1.2; }
     aspect-ratio: 1;
     position: relative;
     border-radius: 1rem;
-    margin: 0.5rem 0.5rem 0;
+    margin: 0.5rem;
     overflow: hidden;
 }
 
@@ -82,9 +82,10 @@ h1, h2, h3, h4 { line-height: 1.2; }
     position: absolute;
     inset: 0.625rem;
     width: calc(100% - 1.25rem);
+    height: calc(100% - 1.25rem);
     object-fit: contain;
     background: white;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     transition: transform 0.3s ease;
     display: block;
     cursor: zoom-in;
@@ -92,6 +93,29 @@ h1, h2, h3, h4 { line-height: 1.2; }
 
 .product-card:hover .product-image {
     transform: scale(1.04);
+}
+
+/* ── Detail page main image ─────────────────────────────────── */
+.detail-image-container {
+    background: white;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+}
+
+.detail-image {
+    width: 100%;
+    display: block;
+    object-fit: contain;
+    border-radius: 1rem;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.detail-image:hover {
+    transform: scale(1.02);
 }
 
 /* Lazy loading */
