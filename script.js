@@ -17,6 +17,20 @@ function getProductMainImage(product) {
         : (product.image || '');
 }
 
+// ── Helper: format price with Kč suffix ──────────────────────────────────────
+function formatPrice(price) {
+    if (!price) return 'Dohodou';
+    const raw = price.toString().trim();
+    if (!raw || raw.toLowerCase() === 'dohodou') return 'Dohodou';
+    if (raw.toLowerCase().includes('kč')) return raw;
+    const numStr = raw.replace(/[^0-9]/g, '');
+    if (!numStr) return raw;
+    const num = parseInt(numStr, 10);
+    if (isNaN(num)) return raw;
+    const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+    return formatted + '\u00a0Kč';
+}
+
 // ── Helper: escape HTML to prevent XSS ───────────────────────────────────────
 function escapeHtml(str) {
     if (!str) return '';
@@ -261,7 +275,7 @@ function renderProductsGrid(products) {
             </div>
             <div class="product-info">
                 <div class="product-title line-clamp-2">${escapeHtml(p.title)}</div>
-                <div class="product-price">${escapeHtml(p.price || 'Dohodou')}</div>
+                <div class="product-price">${escapeHtml(formatPrice(p.price))}</div>
                 ${p.location ? `<div class="product-location">${escapeHtml(p.location)}</div>` : ''}
                 <div class="product-meta">
                     ${p.category ? `<button type="button" class="product-tag" data-action="filter-category" data-filter-value="${escapeHtml(p.category)}" aria-label="Filtrovat podle kategorie: ${escapeHtml(p.category)}"><i class="fas fa-tag"></i> ${escapeHtml(p.category)}</button>` : ''}
