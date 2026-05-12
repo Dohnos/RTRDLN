@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mart Stam | Retrodílna.cz</title>
+    <meta name="description" content="Mart Stam (1899–1986) – nizozemský architekt a designér, tvůrce první konzolové židle bez zadních noh (1927). Ikona evropského funkcionalismu. Prohlédněte si jeho produkty na Retrodílna.cz.">
+    <meta name="robots" content="index, follow">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg">
+    <link rel="shortcut icon" href="../favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="Retrodilna">
+    <link rel="manifest" href="../favicon/site.webmanifest">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Libraries -->
+    <link rel="stylesheet" href="../tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="bg-[#fafafa] font-sans">
+
+    <!-- ===== HEADER ===== -->
+    <header class="bg-[#0a0a0a] text-white fixed w-full z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="../index.html" class="text-xl font-extrabold tracking-tight">
+                RETRODÍLNA<span class="text-gray-400">.CZ</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <a href="../index.html#produkty" class="hover:text-gray-300 transition-colors">Produkty</a>
+                <a href="../index.html#sluzby" class="hover:text-gray-300 transition-colors">Služby</a>
+                <a href="../index.html#kontakt" class="hover:text-gray-300 transition-colors">Kontakt</a>
+            </nav>
+            <a href="../index.html#produkty"
+               class="text-sm bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors">
+                ← Zpět na produkty
+            </a>
+        </div>
+    </header>
+
+    <main class="pt-16">
+
+        <!-- ===== HERO ===== -->
+        <section class="relative py-24 md:py-32 bg-[#0a0a0a] overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-cover bg-center"
+                 style="background-image: url('https://i.postimg.cc/rwQ95kyJ/4.png')"></div>
+            <div class="relative z-10 container mx-auto px-4 text-center text-white">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-3">Designer / Výrobce</p>
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4">Mart Stam</h1>
+                <p class="text-gray-300 text-lg max-w-xl mx-auto">1899 – 1986 · Nizozemský architekt a designér · Otec konzolové židle</p>
+            </div>
+        </section>
+
+        <!-- ===== BIO ===== -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-5xl mx-auto grid md:grid-cols-5 gap-10 items-start">
+
+                    <!-- Portrait placeholder -->
+                    <div class="md:col-span-2">
+                        <div class="w-full aspect-[3/4] rounded-3xl bg-gradient-to-br from-[#1a1a1a] to-[#2d1a3d] flex items-center justify-center overflow-hidden shadow-xl">
+                            <span class="text-[10rem] font-extrabold text-white/10 select-none leading-none">S</span>
+                        </div>
+                        <p class="text-xs text-gray-400 text-center mt-2">Foto: Mart Stam</p>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="md:col-span-3">
+                        <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">O designérovi</p>
+                        <h2 class="text-3xl font-extrabold mb-6">Mart Stam</h2>
+                        <div class="space-y-4 text-gray-600 leading-relaxed mb-8">
+                            <p>
+                                Mart Stam byl nizozemský architekt, urbanista a designér nábytku, jehož
+                                přínos evropskému funkcionalismu je nezpochybnitelný. Narodil se v roce 1899
+                                v Purmerendu a záhy se přidal k avantgardnímu hnutí, které ve 20. letech
+                                revolučně proměnilo evropskou architekturu a design. V roce 1927 navrhl
+                                první konzolovou – neboli beznohou – tubulární ocelovou židli na světě.
+                            </p>
+                            <p>
+                                Stam používal pevné trubkové ocelové profily, díky nimž jeho konzolová
+                                konstrukce skutečně „stojí" bez pružení. Tento princip se stal předlohou pro
+                                podobné návrhy Marcela Breuera a Ludwiga Miese van der Rohe a zásadně
+                                ovlivnil celé 20. století. Stam také spolupracoval na projektech v SSSR a v Německu,
+                                kde se podílel na navrhování funkcionalistických obytných čtvrtí.
+                            </p>
+                        </div>
+
+                        <!-- Key facts -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gray-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Narozen</p>
+                                <p class="font-bold text-sm">1899, Purmerend, Nizozemsko</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Zemřel</p>
+                                <p class="font-bold text-sm">1986, Gifhorn, Německo</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Styl</p>
+                                <p class="font-bold text-sm">Funkcionalismus / Modernismus</p>
+                            </div>
+                            <div class="bg-gray-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Ikonický produkt</p>
+                                <p class="font-bold text-sm">Konzolová židle S33 (1927)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PRODUCTS ===== -->
+        <section id="produkty" class="py-14 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Produkty Marta Stama</h2>
+                    <p class="text-gray-500">Autentické kousky z naší sbírky</p>
+                </div>
+                <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="product-skeleton"></div>
+                    <div class="product-skeleton"></div>
+                    <div class="product-skeleton"></div>
+                    <div class="product-skeleton"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-[#0a0a0a] text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <p class="text-xl font-extrabold mb-2">RETRODÍLNA<span class="text-gray-500">.CZ</span></p>
+                    <p class="text-gray-400 text-sm leading-relaxed">Specializovaný obchod zaměřený na prodej a renovaci vintage nábytku a retro designových kousků.</p>
+                </div>
+                <div>
+                    <p class="font-bold text-sm mb-3 uppercase tracking-wider text-gray-400">Navigace</p>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <a href="../index.html#produkty" class="block hover:text-white transition-colors">Produkty</a>
+                        <a href="../index.html#sluzby" class="block hover:text-white transition-colors">Služby</a>
+                        <a href="../index.html#jak-nakupovat" class="block hover:text-white transition-colors">Jak nakupovat</a>
+                        <a href="../index.html#kontakt" class="block hover:text-white transition-colors">Kontakt</a>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-bold text-sm mb-3 uppercase tracking-wider text-gray-400">Kontakt</p>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <p><i class="fas fa-map-marker-alt w-4 mr-2"></i>Zvole 39, 789 01 ČR</p>
+                        <a href="tel:+420603538440" class="block hover:text-white transition-colors"><i class="fas fa-phone w-4 mr-2"></i>603 538 440</a>
+                        <a href="mailto:Retrodilna@seznam.cz" class="block hover:text-white transition-colors"><i class="fas fa-envelope w-4 mr-2"></i>Retrodilna@seznam.cz</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-6 text-center text-gray-500 text-sm">
+                &copy; 2025 Retrodílna.cz | Všechna práva vyhrazena
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const DESIGNER_NAME = 'MART STAM';
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function formatPrice(price) {
+            if (!price) return 'Dohodou';
+            const raw = price.toString().trim();
+            if (!raw || raw.toLowerCase() === 'dohodou') return 'Dohodou';
+            if (raw.toLowerCase().includes('kč')) return raw;
+            const numStr = raw.replace(/[^0-9]/g, '');
+            if (!numStr) return raw;
+            const num = parseInt(numStr, 10);
+            if (isNaN(num)) return raw;
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0Kč';
+        }
+
+        async function loadProducts() {
+            let products = [];
+
+            try {
+                const snap = await db.collection('products')
+                    .where('active', '==', true)
+                    .where('designer', '==', DESIGNER_NAME)
+                    .get();
+                products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) {
+                console.warn('Firebase nedostupný, načítám products.json', e);
+            }
+
+            if (products.length === 0) {
+                try {
+                    const res = await fetch('../products.json');
+                    const data = await res.json();
+                    products = (data.products || []).filter(p => p.designer === DESIGNER_NAME);
+                } catch (e2) {
+                    console.error('Nelze načíst data', e2);
+                }
+            }
+
+            renderProducts(products);
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            if (!grid) return;
+
+            if (products.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16 text-gray-400">
+                        <i class="fas fa-search text-4xl block mb-4 text-gray-200"></i>
+                        <p class="font-medium">Momentálně nejsou k dispozici žádné produkty od tohoto výrobce.</p>
+                        <a href="../index.html#produkty" class="mt-4 inline-block text-sm text-gray-500 underline hover:text-black">Zobrazit všechny produkty</a>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = products.map(p => {
+                const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
+                return `
+                <a href="../product.html?id=${escapeHtml(p.id)}" class="product-card group block">
+                    <div class="product-image-container">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
+                             data-src="${escapeHtml(img)}"
+                             alt="${escapeHtml(p.title)}"
+                             class="product-image lazy"
+                             loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">${escapeHtml(p.title)}</div>
+                        <div class="product-price">${escapeHtml(formatPrice(p.price))}</div>
+                        ${p.location ? `<div class="product-location">${escapeHtml(p.location)}</div>` : ''}
+                        <button class="inquiry-btn" tabindex="-1">
+                            <i class="fas fa-eye mr-1.5"></i>Omrknout
+                        </button>
+                    </div>
+                </a>`;
+            }).join('');
+
+            const images = document.querySelectorAll('img.lazy');
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        img.classList.add('loaded');
+                        observer.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '200px' });
+            images.forEach(img => observer.observe(img));
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+
+</body>
+</html>
