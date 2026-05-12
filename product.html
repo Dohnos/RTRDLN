@@ -30,11 +30,7 @@
     <meta property="og:title" id="ogTitle" content="Produkt | Retrodílna.cz">
     <meta property="og:description" id="ogDesc" content="Vintage nábytek a retro design">
     <meta property="og:image" id="ogImage" content="">
-    <meta property="og:image:width"  id="ogImageW" content="">
-    <meta property="og:image:height" id="ogImageH" content="">
     <meta property="og:url" id="ogUrl" content="">
-    <meta property="product:price:amount"   id="ogPriceAmount"   content="">
-    <meta property="product:price:currency" id="ogPriceCurrency" content="CZK">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
@@ -591,12 +587,10 @@
             const seoTitle = `${p.title} | Retrodílna.cz`;
             const seoDesc = p.description
                 ? `${p.description.substring(0, 140)} — Retrodílna.cz`
-                : `${p.title}${p.price ? ' za ' + p.price : ''}. Vintage nábytek a retro design. Retrodílna.cz`;
+                : `${p.title} za ${p.price}. Vintage nábytek a retro design. Retrodílna.cz`;
             const prettyUrl = buildProductUrl(p);
             const absolutePrettyUrl = `https://www.retrodilna.cz/produkt/${slugify(p.title)}/${p.id}`;
-            let mainImage = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
-            // Ensure absolute URL (sbazar thumbnails start with //)
-            if (mainImage && mainImage.startsWith('//')) mainImage = 'https:' + mainImage;
+            const mainImage = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
 
             // Update browser URL to pretty format (visible in address bar)
             try {
@@ -614,11 +608,6 @@
             document.getElementById('twTitle').setAttribute('content', seoTitle);
             document.getElementById('twDesc').setAttribute('content', seoDesc);
             document.getElementById('twImage').setAttribute('content', mainImage);
-            // Facebook product price tags
-            const priceNum = (p.price || '').replace(/[^0-9]/g, '');
-            if (priceNum) {
-                document.getElementById('ogPriceAmount').setAttribute('content', priceNum);
-            }
 
             // JSON-LD
             const schema = {
