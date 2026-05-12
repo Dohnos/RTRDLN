@@ -767,11 +767,56 @@
             const container = document.getElementById('designersList');
             if (!container) return;
             container.innerHTML = designers.map(d => `
-                <div class="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2 text-sm">
-                    <span>${d.name}</span>
-                    ${d.id ? `<button onclick="deleteDesigner('${d.id}')" class="text-red-400 hover:text-red-600 transition-colors text-xs"><i class="fas fa-times"></i></button>` : ''}
+                <div class="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2 text-sm gap-2">
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                        <div class="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 flex items-center justify-center">
+                            ${d.photo
+                                ? `<img src="${d.photo}" alt="" class="w-full h-full object-cover">`
+                                : `<i class="fas fa-user text-gray-400 text-xs"></i>`}
+                        </div>
+                        <span class="truncate font-medium">${d.name}</span>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        ${d.id ? `<button onclick="uploadDesignerPhoto('${d.id}')" title="Nahrát foto" class="text-gray-400 hover:text-black transition-colors text-xs px-2 py-1 rounded-lg hover:bg-gray-200"><i class="fas fa-camera"></i></button>` : ''}
+                        ${d.id ? `<button onclick="deleteDesigner('${d.id}')" class="text-red-400 hover:text-red-600 transition-colors text-xs"><i class="fas fa-times"></i></button>` : ''}
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function uploadDesignerPhoto(designerId) {
+            if (CLOUDINARY_CLOUD === 'YOUR_CLOUD_NAME') {
+                showNotification('Nejprve nastavte CLOUDINARY_CLOUD a CLOUDINARY_PRESET v admin.html', 'error');
+                return;
+            }
+            const widget = cloudinary.createUploadWidget({
+                cloudName: CLOUDINARY_CLOUD,
+                uploadPreset: CLOUDINARY_PRESET,
+                multiple: false,
+                maxFiles: 1,
+                sources: ['local', 'camera'],
+                clientAllowedFormats: ['image'],
+                maxImageWidth: 1200,
+                maxImageHeight: 1200,
+                cropping: true,
+                croppingAspectRatio: 1,
+                folder: 'retrodilna/designers',
+                language: 'cs'
+            }, async (error, result) => {
+                if (!error && result.event === 'success') {
+                    const photoUrl = result.info.secure_url;
+                    try {
+                        await db.collection('designers').doc(designerId).update({ photo: photoUrl });
+                        const idx = designers.findIndex(d => d.id === designerId);
+                        if (idx !== -1) designers[idx].photo = photoUrl;
+                        renderDesignersList();
+                        showNotification('Foto designéra nahráno', 'success');
+                    } catch (e) {
+                        showNotification('Chyba při ukládání: ' + e.message, 'error');
+                    }
+                }
+            });
+            widget.open();
         }
 
         // ── IMPORT FROM products.json ─────────────────────────────────────────────

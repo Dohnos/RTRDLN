@@ -858,7 +858,6 @@
             if (p.dimensions) specs.push({ icon: 'fa-ruler', label: 'Rozměry', value: p.dimensions });
             if (p.category) specs.push({ icon: 'fa-tag', label: 'Kategorie', value: p.category, link: 'index.html?category=' + encodeURIComponent(p.category) + '#produkty' });
             if (p.designer) specs.push({ icon: 'fa-industry', label: 'Výrobce', value: p.designer, link: 'index.html?designer=' + encodeURIComponent(p.designer) + '#produkty' });
-            if (p.location) specs.push({ icon: 'fa-map-marker-alt', label: 'Lokace', value: p.location });
 
             const specsBlock = document.getElementById('specsBlock');
             if (specs.length) {
@@ -900,10 +899,10 @@
             displayWishlistItems();
 
             // whoIam section
-            renderWhoIam(p);
+            loadAndRenderWhoIam(p);
         }
 
-        function renderWhoIam(p) {
+        function renderWhoIam(p, designerPhoto) {
             const section = document.getElementById('whoIamSection');
             if (!p.designer) { section.classList.add('hidden'); return; }
 
@@ -918,8 +917,28 @@
             document.getElementById('whoIamDesc').textContent = info.desc;
 
             const portrait = document.getElementById('whoIamPortrait');
-            portrait.style.background = info.gradient;
-            portrait.innerHTML = `<span class="text-2xl font-extrabold select-none leading-none" style="color:rgba(255,255,255,0.6)">${escapeHtml(info.initials)}</span>`;
+            if (designerPhoto) {
+                portrait.style.background = '';
+                portrait.innerHTML = `<img src="${escapeHtml(designerPhoto)}" alt="${escapeHtml(info.label)}" class="w-full h-full object-cover">`;
+            } else {
+                portrait.style.background = info.gradient;
+                portrait.innerHTML = `<span class="text-2xl font-extrabold select-none leading-none" style="color:rgba(255,255,255,0.6)">${escapeHtml(info.initials)}</span>`;
+            }
+        }
+
+        async function loadAndRenderWhoIam(p) {
+            let designerPhoto = null;
+            if (p.designer) {
+                try {
+                    const snap = await db.collection('designers').where('name', '==', p.designer).limit(1).get();
+                    if (!snap.empty) {
+                        designerPhoto = snap.docs[0].data().photo || null;
+                    }
+                } catch (e) {
+                    console.warn('Nelze načíst foto designéra', e);
+                }
+            }
+            renderWhoIam(p, designerPhoto);
         }
 
         function switchImage(src) {
