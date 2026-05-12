@@ -29,14 +29,15 @@
     <meta property="og:site_name" content="Retrodílna.cz">
     <meta property="og:title" id="ogTitle" content="Produkt | Retrodílna.cz">
     <meta property="og:description" id="ogDesc" content="Vintage nábytek a retro design">
-    <meta property="og:image" id="ogImage" content="">
+    <meta property="og:image" id="ogImage" content="https://i.postimg.cc/rwQ95kyJ/4.png">
+    <meta property="og:image:alt" id="ogImageAlt" content="Produkt | Retrodílna.cz">
     <meta property="og:url" id="ogUrl" content="">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" id="twTitle" content="Produkt | Retrodílna.cz">
     <meta name="twitter:description" id="twDesc" content="Vintage nábytek a retro design">
-    <meta name="twitter:image" id="twImage" content="">
+    <meta name="twitter:image" id="twImage" content="https://i.postimg.cc/rwQ95kyJ/4.png">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96">
@@ -183,7 +184,7 @@
                             </div>
 
                             <!-- CTA buttons -->
-                            <div class="flex items-center gap-3 mt-2">
+                            <div class="flex flex-wrap items-center gap-3 mt-2">
                                 <button id="btnWishlistDetail"
                                         onclick="toggleWishlistDetail()"
                                         title="Přidat do wishlistu"
@@ -192,11 +193,11 @@
                                 </button>
                                 <button id="btnMamZajem"
                                         onclick="openModal()"
-                                        class="flex-1 bg-black text-white py-3.5 px-6 rounded-full font-bold text-base hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                        class="flex-1 min-w-32 bg-black text-white py-3.5 px-6 rounded-full font-bold text-base hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                                     <i class="fas fa-envelope"></i> Mám zájem
                                 </button>
                                 <a href="tel:+420603538440"
-                                   class="flex-1 border-2 border-black text-black py-3.5 px-6 rounded-full font-bold text-base hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
+                                   class="w-full sm:flex-1 sm:w-auto border-2 border-black text-black py-3.5 px-6 rounded-full font-bold text-base hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
                                     <i class="fas fa-phone"></i> 603 538 440
                                 </a>
                             </div>
@@ -604,6 +605,7 @@
             document.getElementById('ogTitle').setAttribute('content', seoTitle);
             document.getElementById('ogDesc').setAttribute('content', seoDesc);
             document.getElementById('ogImage').setAttribute('content', mainImage);
+            document.getElementById('ogImageAlt').setAttribute('content', seoTitle);
             document.getElementById('ogUrl').setAttribute('content', absolutePrettyUrl);
             document.getElementById('twTitle').setAttribute('content', seoTitle);
             document.getElementById('twDesc').setAttribute('content', seoDesc);
