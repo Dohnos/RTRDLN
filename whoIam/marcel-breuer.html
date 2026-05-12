@@ -282,7 +282,7 @@
                 if (!snap.empty) {
                     const photo = snap.docs[0].data().photo;
                     if (photo) {
-                        box.innerHTML = `<img src="${photo}" alt="" class="w-full h-full object-cover">`;
+                        box.innerHTML = '<img src="' + escapeHtml(photo) + '" alt="" class="w-full h-full object-cover">';
                         box.style.background = '';
                     }
                 }
