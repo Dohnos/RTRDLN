@@ -82,7 +82,6 @@ h1, h2, h3, h4 { line-height: 1.2; }
     position: absolute;
     inset: 0.625rem;
     width: calc(100% - 1.25rem);
-    height: calc(100% - 1.25rem);
     object-fit: contain;
     background: white;
     border-radius: 1rem;
