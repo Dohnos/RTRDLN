@@ -29,14 +29,14 @@
     <meta property="og:site_name" content="Retrodílna.cz">
     <meta property="og:title" id="ogTitle" content="Produkt | Retrodílna.cz">
     <meta property="og:description" id="ogDesc" content="Vintage nábytek a retro design">
-    <meta property="og:image" id="ogImage" content="">
+    <meta property="og:image" id="ogImage" content="https://i.postimg.cc/rwQ95kyJ/4.png">
     <meta property="og:url" id="ogUrl" content="">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" id="twTitle" content="Produkt | Retrodílna.cz">
     <meta name="twitter:description" id="twDesc" content="Vintage nábytek a retro design">
-    <meta name="twitter:image" id="twImage" content="">
+    <meta name="twitter:image" id="twImage" content="https://i.postimg.cc/rwQ95kyJ/4.png">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96">
@@ -183,20 +183,22 @@
                             </div>
 
                             <!-- CTA buttons -->
-                            <div class="flex items-center gap-3 mt-2">
-                                <button id="btnWishlistDetail"
-                                        onclick="toggleWishlistDetail()"
-                                        title="Přidat do wishlistu"
-                                        class="flex-none w-12 h-12 border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-red-400 hover:text-red-500 transition-colors">
-                                    <i id="btnWishlistIcon" class="far fa-heart text-base"></i>
-                                </button>
-                                <button id="btnMamZajem"
-                                        onclick="openModal()"
-                                        class="flex-1 bg-black text-white py-3.5 px-6 rounded-full font-bold text-base hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                                    <i class="fas fa-envelope"></i> Mám zájem
-                                </button>
+                            <div class="flex flex-col gap-3 mt-2">
+                                <div class="flex items-center gap-3">
+                                    <button id="btnWishlistDetail"
+                                            onclick="toggleWishlistDetail()"
+                                            title="Přidat do wishlistu"
+                                            class="flex-none w-12 h-12 border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-red-400 hover:text-red-500 transition-colors">
+                                        <i id="btnWishlistIcon" class="far fa-heart text-base"></i>
+                                    </button>
+                                    <button id="btnMamZajem"
+                                            onclick="openModal()"
+                                            class="flex-1 bg-black text-white py-3.5 px-6 rounded-full font-bold text-base hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                        <i class="fas fa-envelope"></i> Mám zájem
+                                    </button>
+                                </div>
                                 <a href="tel:+420603538440"
-                                   class="flex-1 border-2 border-black text-black py-3.5 px-6 rounded-full font-bold text-base hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
+                                   class="w-full border-2 border-black text-black py-3.5 px-6 rounded-full font-bold text-base hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
                                     <i class="fas fa-phone"></i> 603 538 440
                                 </a>
                             </div>
