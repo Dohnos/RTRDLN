@@ -9,7 +9,11 @@ let designers = [];
 let categories = [];
 let currentStep = 1;
 let currentModalProduct = null;
-const EMAILJS_CONFIG = window.EMAILJS_CONFIG;
+const EMAILJS_CONFIG = window.EMAILJS_CONFIG || Object.freeze({
+    serviceId: 'service_qpll4z6',
+    templateId: 'template_40bjq9p',
+    publicKey: 'TJRmVM_YRqmfCKXKn'
+});
 
 // ── Helper: get main product image ───────────────────────────────────────────
 function getProductMainImage(product) {
