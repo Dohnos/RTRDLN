@@ -56,6 +56,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
+    <!-- Zaslat.cz delivery map widget -->
+    <script>window.zslt = {};</script>
+    <script id="zaslat-map" async src="https://app.zaslat.cz/map/2.5.0/zaslat-map.umd.min.js"></script>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -420,12 +424,58 @@
                 <div id="step3" class="p-6 space-y-4 hidden">
                     <h4 class="font-semibold text-base">Doručení a poznámka</h4>
                     <div class="space-y-3">
+                        <!-- Hidden address field – populated before submit -->
+                        <input type="hidden" id="hAddress" name="address">
+
+                        <!-- Delivery method toggle -->
                         <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Způsob doručení *</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" id="btnDeliveryZaslat"
+                                        onclick="selectDelivery('zaslat')"
+                                        class="flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-black bg-black text-white text-sm font-semibold transition-all">
+                                    <i class="fas fa-box text-xs"></i> Výdejní místo
+                                </button>
+                                <button type="button" id="btnDeliveryAddress"
+                                        onclick="selectDelivery('address')"
+                                        class="flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-gray-200 text-gray-600 text-sm font-semibold hover:border-gray-300 transition-all">
+                                    <i class="fas fa-home text-xs"></i> Domovní adresa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Zaslat.cz pickup section -->
+                        <div id="zaslatSection">
+                            <button type="button" onclick="openZaslatMap()" id="btnPickPoint"
+                                    class="w-full border-2 border-dashed border-gray-300 rounded-2xl p-4 text-sm font-medium text-gray-500 hover:border-black hover:text-black transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-map-marker-alt"></i> Vybrat výdejní místo na mapě
+                            </button>
+                            <div id="selectedPickupPoint" class="hidden bg-green-50 border-2 border-green-200 rounded-2xl p-4 text-sm">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-gray-800" id="pickupName"></p>
+                                        <p class="text-gray-600 text-xs mt-0.5" id="pickupAddress"></p>
+                                        <p class="text-gray-500 text-xs mt-0.5">
+                                            <span id="pickupCarrierLabel" class="capitalize font-medium"></span>
+                                            &nbsp;·&nbsp; Kód: <span id="pickupCode" class="font-mono font-semibold text-gray-700"></span>
+                                        </p>
+                                    </div>
+                                    <button type="button" onclick="openZaslatMap()"
+                                            class="flex-shrink-0 text-xs text-gray-500 hover:text-black underline mt-0.5">
+                                        Změnit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual address section -->
+                        <div id="manualAddressSection" class="hidden">
                             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Adresa doručení *</label>
-                            <textarea name="address" required rows="2"
+                            <textarea id="manualAddressInput" rows="2"
                                       class="w-full border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:border-black focus:outline-none transition-colors resize-none"
                                       placeholder="Ulice 1, 123 45 Město"></textarea>
                         </div>
+
                         <div>
                             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Poznámka</label>
                             <textarea name="note" rows="2"
@@ -524,6 +574,8 @@
         let currentProduct = null;
         let allProducts = [];
         let currentStep = 1;
+        let selectedDeliveryMethod = 'zaslat'; // 'zaslat' | 'address'
+        let selectedZaslatPoint = null;
 
         // ── Helper: format price with Kč suffix ─────────────────────────────────
         function formatPrice(price) {
@@ -1067,6 +1119,8 @@
             populateAdditionalProducts();
             updateInquiryTotal();
             updateHiddenAdditional();
+            // Reset delivery state
+            resetDeliveryState();
             // Always reset overlay when opening
             const overlay = document.querySelector('#inquiryForm .loading-overlay');
             if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
@@ -1086,6 +1140,8 @@
             additionalProducts = [];
             currentStep = 1;
             updateStepUI();
+            // Reset delivery state
+            resetDeliveryState();
             // Reset company fields
             const companyFields = document.getElementById('companyFields');
             if (companyFields) {
@@ -1127,6 +1183,87 @@
             const arrow = document.getElementById('companyArrow');
             const hidden = fields.classList.toggle('hidden');
             arrow.style.transform = hidden ? '' : 'rotate(180deg)';
+        }
+
+        // ── Delivery method (Step 3) ──────────────────────────────────────────────
+        function selectDelivery(method) {
+            selectedDeliveryMethod = method;
+            const btnZaslat = document.getElementById('btnDeliveryZaslat');
+            const btnAddress = document.getElementById('btnDeliveryAddress');
+            const zaslatSection = document.getElementById('zaslatSection');
+            const manualSection = document.getElementById('manualAddressSection');
+
+            if (method === 'zaslat') {
+                btnZaslat.className = 'flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-black bg-black text-white text-sm font-semibold transition-all';
+                btnAddress.className = 'flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-gray-200 text-gray-600 text-sm font-semibold hover:border-gray-300 transition-all';
+                zaslatSection.classList.remove('hidden');
+                manualSection.classList.add('hidden');
+            } else {
+                btnAddress.className = 'flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-black bg-black text-white text-sm font-semibold transition-all';
+                btnZaslat.className = 'flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-gray-200 text-gray-600 text-sm font-semibold hover:border-gray-300 transition-all';
+                zaslatSection.classList.add('hidden');
+                manualSection.classList.remove('hidden');
+            }
+        }
+
+        function openZaslatMap() {
+            if (typeof zslt === 'undefined' || typeof zslt.openMap !== 'function') {
+                showNotification('Mapa se načítá, zkuste za chvíli.', 'error');
+                return;
+            }
+            zslt.openMap({
+                addressType: 'recipient',
+                country: 'cz',
+                carriers: ['balikovna', 'dpd', 'gls', 'ppl', 'zasilkovna'],
+                lang: 'cz',
+                prices: {
+                    balikovna: '59 Kč',
+                    dpd: '59 Kč',
+                    gls: '59 Kč',
+                    ppl: '59 Kč',
+                    zasilkovna: '59 Kč'
+                },
+                style: { colorPrimary: '#000' },
+                value: selectedZaslatPoint ? JSON.stringify(selectedZaslatPoint) : ''
+            }).then(function(point) {
+                selectedZaslatPoint = point;
+                displaySelectedPickupPoint(point);
+            }).catch(function() {
+                // user closed map without selecting – keep previous selection
+            });
+        }
+
+        function displaySelectedPickupPoint(point) {
+            if (!point) return;
+            const { carrierKey, code } = extractCarrierInfo(point);
+
+            document.getElementById('pickupName').textContent = point.name || '';
+            document.getElementById('pickupAddress').textContent =
+                [point.street, point.city, point.zip].filter(Boolean).join(', ');
+            document.getElementById('pickupCarrierLabel').textContent = carrierKey;
+            document.getElementById('pickupCode').textContent = code;
+
+            document.getElementById('btnPickPoint').classList.add('hidden');
+            document.getElementById('selectedPickupPoint').classList.remove('hidden');
+        }
+
+        function extractCarrierInfo(point) {
+            const carriers = (point && point.carriers) || {};
+            const carrierKey = Object.keys(carriers)[0] || '';
+            const code = carrierKey && carriers[carrierKey] ? (carriers[carrierKey].code || '') : '';
+            return { carrierKey, code };
+        }
+
+        function resetDeliveryState() {
+            selectedDeliveryMethod = 'zaslat';
+            selectedZaslatPoint = null;
+            const btn = document.getElementById('btnPickPoint');
+            const selected = document.getElementById('selectedPickupPoint');
+            const manual = document.getElementById('manualAddressInput');
+            if (btn) btn.classList.remove('hidden');
+            if (selected) selected.classList.add('hidden');
+            if (manual) manual.value = '';
+            selectDelivery('zaslat');
         }
 
         function copyProductLink() {
@@ -1236,6 +1373,28 @@
         // ── Form submit ──────────────────────────────────────────────────────────
         document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // Validate & build delivery address string
+            let addressValue = '';
+            if (selectedDeliveryMethod === 'zaslat') {
+                if (!selectedZaslatPoint) {
+                    showNotification('Prosím vyberte výdejní místo na mapě.', 'error');
+                    return;
+                }
+                const { carrierKey, code } = extractCarrierInfo(selectedZaslatPoint);
+                const parts = [selectedZaslatPoint.street, selectedZaslatPoint.city, selectedZaslatPoint.zip].filter(Boolean).join(', ');
+                addressValue = `Zaslat.cz - ${carrierKey}: ${selectedZaslatPoint.name || ''}, ${parts} (kod: ${code})`;
+            } else {
+                const manualInput = document.getElementById('manualAddressInput');
+                if (!manualInput || !manualInput.value.trim()) {
+                    if (manualInput) { manualInput.focus(); }
+                    showNotification('Prosím vyplňte adresu doručení.', 'error');
+                    return;
+                }
+                addressValue = manualInput.value.trim();
+            }
+            document.getElementById('hAddress').value = addressValue;
+
             const overlay = this.querySelector('.loading-overlay');
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
