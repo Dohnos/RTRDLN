@@ -481,6 +481,8 @@
     <script src="emailjs-config.js"></script>
     <script>
         const EMAILJS_CONFIG = window.EMAILJS_CONFIG || null;
+        const SITE_BASE_URL = 'https://www.retrodilna.cz';
+        const DEFAULT_OG_IMAGE_URL = `${SITE_BASE_URL}/images/og-image.jpg`;
         if (EMAILJS_CONFIG) {
             emailjs.init(EMAILJS_CONFIG.publicKey);
         } else {
@@ -530,9 +532,9 @@
         }
 
         function toAbsoluteImageUrl(url) {
-            if (!url) return 'https://www.retrodilna.cz/images/og-image.jpg';
+            if (!url) return DEFAULT_OG_IMAGE_URL;
             if (/^https?:\/\//i.test(url)) return url;
-            return `https://www.retrodilna.cz/${String(url).replace(/^\/+/, '')}`;
+            return `${SITE_BASE_URL}/${String(url).replace(/^\/+/, '')}`;
         }
 
         // ── Load product ────────────────────────────────────────────────────────
@@ -601,7 +603,7 @@
                 ? `${p.description.substring(0, 140)} — Retrodílna.cz`
                 : `${p.title} za ${p.price}. Vintage nábytek a retro design. Retrodílna.cz`;
             const prettyUrl = buildProductUrl(p);
-            const absolutePrettyUrl = `https://www.retrodilna.cz/produkt/${slugify(p.title)}/${p.id}`;
+            const absolutePrettyUrl = `${SITE_BASE_URL}/produkt/${slugify(p.title)}/${p.id}`;
             const mainImageRaw = Array.isArray(p.images) && p.images.length ? p.images[0] : (p.image || '');
             const mainImage = toAbsoluteImageUrl(mainImageRaw);
 
