@@ -71,7 +71,7 @@
 
                     <!-- Portrait placeholder -->
                     <div class="md:col-span-2">
-                        <div class="w-full aspect-[3/4] rounded-3xl bg-gradient-to-br from-[#1a1a1a] to-[#444] flex items-center justify-center overflow-hidden shadow-xl">
+                        <div id="designerPortraitBox" class="w-full aspect-[3/4] rounded-3xl bg-gradient-to-br from-[#1a1a1a] overflow-hidden shadow-xl flex items-center justify-center">
                             <span class="text-[10rem] font-extrabold text-white/10 select-none leading-none">H</span>
                         </div>
                         <p class="text-xs text-gray-400 text-center mt-2">Foto: Jindřich Halabala</p>
@@ -246,7 +246,6 @@
                     <div class="product-info">
                         <div class="product-title">${escapeHtml(p.title)}</div>
                         <div class="product-price">${escapeHtml(formatPrice(p.price))}</div>
-                        ${p.location ? `<div class="product-location">${escapeHtml(p.location)}</div>` : ''}
                         <button class="inquiry-btn" tabindex="-1">
                             <i class="fas fa-eye mr-1.5"></i>Omrknout
                         </button>
@@ -269,7 +268,27 @@
             images.forEach(img => observer.observe(img));
         }
 
-        document.addEventListener('DOMContentLoaded', loadProducts);
+        document.addEventListener('DOMContentLoaded', () => { loadProducts(); loadDesignerPhoto(); });
+    
+        async function loadDesignerPhoto() {
+            const box = document.getElementById('designerPortraitBox');
+            if (!box) return;
+            try {
+                const snap = await db.collection('designers')
+                    .where('name', '==', DESIGNER_NAME)
+                    .limit(1).get();
+                if (!snap.empty) {
+                    const photo = snap.docs[0].data().photo;
+                    if (photo) {
+                        box.innerHTML = '<img src="' + escapeHtml(photo) + '" alt="" class="w-full h-full object-cover">';
+                        box.style.background = '';
+                    }
+                }
+            } catch (e) {
+                console.warn('Nelze načíst foto designéra', e);
+            }
+        }
+
     </script>
 
 </body>
