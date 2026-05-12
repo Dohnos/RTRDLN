@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                const sendPromise = emailjs.send('service_4xb9s3i', 'template_nuyzj2z', {
+                const sendPromise = emailjs.send('service_qpll4z6', 'template_40bjq9p', {
                     to_email: 'retrodilna@seznam.cz',
                     from_name: d.name,
                     from_email: d.email,
