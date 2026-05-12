@@ -220,6 +220,37 @@
                 </div>
             </section>
 
+            <!-- whoIam: Designer / Manufacturer section -->
+            <section id="whoIamSection" class="py-10 bg-white hidden">
+                <div class="container mx-auto px-4">
+                    <div class="max-w-6xl mx-auto">
+                        <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">O designérovi / výrobci</p>
+                        <a id="whoIamLink" href="#" class="block group">
+                            <div class="bg-gray-50 rounded-3xl p-5 hover:shadow-md transition-all duration-200 flex gap-5 items-center">
+                                <!-- Portrait -->
+                                <div id="whoIamPortrait"
+                                     class="flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center shadow-sm">
+                                </div>
+                                <!-- Info -->
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-0.5">Designer / Výrobce</p>
+                                    <h3 id="whoIamName" class="font-extrabold text-xl leading-tight mb-1"></h3>
+                                    <p id="whoIamSubtitle" class="text-gray-500 text-xs mb-2"></p>
+                                    <p id="whoIamDesc" class="text-gray-600 text-sm leading-relaxed line-clamp-2"></p>
+                                </div>
+                                <!-- Arrow -->
+                                <div class="flex-shrink-0 flex flex-col items-center gap-1">
+                                    <div class="w-10 h-10 rounded-full bg-[#0a0a0a] text-white flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                                        <i class="fas fa-arrow-right text-sm"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-400">Více info</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
             <!-- Related products -->
             <section id="relatedSection" class="py-12 bg-white hidden">
                 <div class="container mx-auto px-4">
@@ -577,6 +608,50 @@
         let selectedDeliveryMethod = 'zaslat'; // 'zaslat' | 'address'
         let selectedZaslatPoint = null;
 
+        // ── whoIam pages mapping ─────────────────────────────────────────────────
+        const WHOIAM_PAGES = {
+            'TON': {
+                slug: 'ton',
+                label: 'TON',
+                subtitle: 'Továrna ohýbaného nábytku · Bystřice pod Hostýnem · od roku 1861',
+                initials: 'T',
+                gradient: 'linear-gradient(135deg, #1a1a1a, #2d4a2d)',
+                desc: 'Česká továrna s více než 160 lety nepřetržité výroby ohýbaného nábytku. Ikona světového designu.'
+            },
+            'THONET': {
+                slug: 'thonet',
+                label: 'Thonet',
+                subtitle: 'Průkopník ohýbaného nábytku · Vídeň · od roku 1819',
+                initials: 'T',
+                gradient: 'linear-gradient(135deg, #1a1a1a, #3d2b0a)',
+                desc: 'Michael Thonet revolucionizoval výrobu nábytku ohýbáním dřeva párou. Ikonická židle č. 14 – nejprodávanější v historii.'
+            },
+            'JINDŘICH HALABALA': {
+                slug: 'jindrich-halabala',
+                label: 'Jindřich Halabala',
+                subtitle: '1903 – 1978 · Český funkcionalistický designér nábytku',
+                initials: 'JH',
+                gradient: 'linear-gradient(135deg, #1a1a1a, #1a2a3a)',
+                desc: 'Šéfdesignér UP Závody v Brně. Průkopník funkcionalismu, autor nesmrtelných sedacích souprav s čistými liniemi.'
+            },
+            'MARCEL BREUER': {
+                slug: 'marcel-breuer',
+                label: 'Marcel Breuer',
+                subtitle: '1902 – 1981 · Bauhaus · Průkopník tubulárního ocelového nábytku',
+                initials: 'MB',
+                gradient: 'linear-gradient(135deg, #1a1a1a, #0a1a2a)',
+                desc: 'Absolvent a pedagog Bauhausu. Autor ikonické Wassily Chair a Cesca Chair – průkopnická díla z ohnuté tubulární oceli.'
+            },
+            'MART STAM': {
+                slug: 'mart-stam',
+                label: 'Mart Stam',
+                subtitle: '1899 – 1986 · Nizozemský architekt a designér · Otec konzolové židle',
+                initials: 'MS',
+                gradient: 'linear-gradient(135deg, #1a1a1a, #2a1a3a)',
+                desc: 'Vynálezce první konzolové tubulární ocelové židle. Zásadní postava evropského funkcionalismu.'
+            }
+        };
+
         // ── Helper: format price with Kč suffix ─────────────────────────────────
         function formatPrice(price) {
             if (!price) return 'Dohodou';
@@ -824,6 +899,28 @@
             updateWishlistDetailBtn();
             updateWishlistBadge();
             displayWishlistItems();
+
+            // whoIam section
+            renderWhoIam(p);
+        }
+
+        function renderWhoIam(p) {
+            const section = document.getElementById('whoIamSection');
+            if (!p.designer) { section.classList.add('hidden'); return; }
+
+            const info = WHOIAM_PAGES[p.designer.toUpperCase()];
+            if (!info) { section.classList.add('hidden'); return; }
+
+            section.classList.remove('hidden');
+
+            document.getElementById('whoIamLink').href = 'whoIam/' + info.slug + '.html';
+            document.getElementById('whoIamName').textContent = info.label;
+            document.getElementById('whoIamSubtitle').textContent = info.subtitle;
+            document.getElementById('whoIamDesc').textContent = info.desc;
+
+            const portrait = document.getElementById('whoIamPortrait');
+            portrait.style.background = info.gradient;
+            portrait.innerHTML = `<span class="text-2xl font-extrabold select-none leading-none" style="color:rgba(255,255,255,0.6)">${escapeHtml(info.initials)}</span>`;
         }
 
         function switchImage(src) {
