@@ -480,12 +480,12 @@
 
     <script src="emailjs-config.js"></script>
     <script>
-        const EMAILJS_CONFIG = window.EMAILJS_CONFIG || Object.freeze({
-            serviceId: 'service_qpll4z6',
-            templateId: 'template_40bjq9p',
-            publicKey: 'TJRmVM_YRqmfCKXKn'
-        });
-        emailjs.init(EMAILJS_CONFIG.publicKey);
+        const EMAILJS_CONFIG = window.EMAILJS_CONFIG || null;
+        if (EMAILJS_CONFIG) {
+            emailjs.init(EMAILJS_CONFIG.publicKey);
+        } else {
+            console.error('EmailJS konfigurace nebyla načtena (emailjs-config.js).');
+        }
 
         let currentProduct = null;
         let allProducts = [];
@@ -1155,6 +1155,9 @@
             };
 
             try {
+                if (!EMAILJS_CONFIG) {
+                    throw new Error('EmailJS konfigurace není dostupná.');
+                }
                 const sendPromise = emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
                     to_email: 'retrodilna@seznam.cz',
                     from_name: d.name,

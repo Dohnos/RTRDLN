@@ -9,11 +9,7 @@ let designers = [];
 let categories = [];
 let currentStep = 1;
 let currentModalProduct = null;
-const EMAILJS_CONFIG = window.EMAILJS_CONFIG || Object.freeze({
-    serviceId: 'service_qpll4z6',
-    templateId: 'template_40bjq9p',
-    publicKey: 'TJRmVM_YRqmfCKXKn'
-});
+const EMAILJS_CONFIG = window.EMAILJS_CONFIG || null;
 
 // ── Helper: get main product image ───────────────────────────────────────────
 function getProductMainImage(product) {
@@ -573,7 +569,11 @@ function showNotification(msg, type = 'default') {
 
 // ── DOMContentLoaded ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    emailjs.init(EMAILJS_CONFIG.publicKey);
+    if (EMAILJS_CONFIG) {
+        emailjs.init(EMAILJS_CONFIG.publicKey);
+    } else {
+        console.error('EmailJS konfigurace nebyla načtena (emailjs-config.js).');
+    }
 
     // Apply pre-selected filter from URL params (e.g. coming from product.html badge)
     const urlParams = new URLSearchParams(window.location.search);
@@ -628,6 +628,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
+                if (!EMAILJS_CONFIG) {
+                    throw new Error('EmailJS konfigurace není dostupná.');
+                }
                 const sendPromise = emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
                     to_email: 'retrodilna@seznam.cz',
                     from_name: d.name,
