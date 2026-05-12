@@ -393,7 +393,8 @@ h1, h2, h3, h4 { line-height: 1.2; }
 
 /* ── Hero background ────────────────────────────────────────── */
 .hero-section {
-    background-image: url('https://i.postimg.cc/rwQ95kyJ/4.png');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                      url(https://i.postimg.cc/rwQ95kyJ/4.png);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
