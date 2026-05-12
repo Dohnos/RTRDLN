@@ -9,6 +9,11 @@ let designers = [];
 let categories = [];
 let currentStep = 1;
 let currentModalProduct = null;
+const EMAILJS_CONFIG = Object.freeze({
+    serviceId: 'service_qpll4z6',
+    templateId: 'template_40bjq9p',
+    publicKey: 'TJRmVM_YRqmfCKXKn'
+});
 
 // ── Helper: get main product image ───────────────────────────────────────────
 function getProductMainImage(product) {
@@ -568,7 +573,7 @@ function showNotification(msg, type = 'default') {
 
 // ── DOMContentLoaded ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    emailjs.init("TJRmVM_YRqmfCKXKn");
+    emailjs.init(EMAILJS_CONFIG.publicKey);
 
     // Apply pre-selected filter from URL params (e.g. coming from product.html badge)
     const urlParams = new URLSearchParams(window.location.search);
@@ -623,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                const sendPromise = emailjs.send('service_qpll4z6', 'template_40bjq9p', {
+                const sendPromise = emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
                     to_email: 'retrodilna@seznam.cz',
                     from_name: d.name,
                     from_email: d.email,
@@ -639,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     product_price: d.productPrice,
                     product_url: d.productUrl,
                     additional_products: d.additional_products || 'Žádné další produkty'
-                });
+                }, EMAILJS_CONFIG.publicKey);
 
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Vypršel časový limit. Zkuste to znovu.')), 15000)
